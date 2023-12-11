@@ -1,0 +1,61 @@
+<template>
+    <div class="container">
+        <div class="row justify-content-center pt-4">
+            <div class="col-lg-6 col-md-8 col-12" style="max-width: 600px;">
+                <div class="studyplan-trimester-courses mb-4" v-for="item in studyplan" :key="item">
+                    <h4>{{ item.trimester }} триместр</h4>
+                    <div class="course base-card my-2" v-for="item in item.courses" :key="item">
+                        <h5>{{ item.course.name }}</h5>
+                        <div class="course-info">Вид оценки: <span>{{ item.course.type_of_mark }}</span></div>
+                        <div class="course-info">Кол-во аудиторных часов: <span>{{ item.course.classroom_worktime }}</span>
+                        </div>
+                        <div class="course-info">Кол-во аудиторных часов: <span>{{ item.course.independent_worktime
+                        }}</span></div>
+                        <div class="course-info">Общее кол-во часов: <span>{{ item.course.classroom_worktime +
+                            item.course.independent_worktime }}</span></div>
+                    </div>
+                </div>
+                <div v-if="errors.length" class="errors">
+                    <div class="error" v-for="error in errors" :key="error">
+                        * {{ error }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { getStudyPlanAPI } from '@/api/study'
+import { formatStudyPlan } from '@/services/study_services'
+import { ref, onMounted } from 'vue';
+
+const error_message_studyplan = 'Не удалось загрузить учебный план'
+
+let studyplan = ref([])
+let errors = ref([])
+
+onMounted(() => {
+    getStudyPlan()
+})
+
+const getStudyPlan = async () => {
+    try {
+        const response = await getStudyPlanAPI()
+        studyplan.value = formatStudyPlan(response.data)
+    }
+    catch {
+        errors.value.push(error_message_studyplan)
+    }
+}
+
+</script>
+
+<style lang="scss" scoped>
+.course-info {
+
+    & span {
+        font-weight: 600;
+    }
+}
+</style>

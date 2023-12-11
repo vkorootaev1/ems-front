@@ -1,0 +1,184 @@
+<template>
+    <Transition>
+        <change-email v-if="is_change_email_modal" @close="is_change_email_modal = false"></change-email>
+    </Transition>
+    <Transition>
+        <change-password v-if="is_change_password_modal" @close="is_change_password_modal = false"></change-password>
+    </Transition>
+    <Transition>
+        <change-username v-if="is_change_username_modal" @close="is_change_username_modal = false"></change-username>
+    </Transition>
+    <div class="custom-navbar">
+        <router-link :to="$store.isStudent() ? { name: 'student_timetable' } : { name: 'teacher_timetable' }"
+            active-class="link-active">Расписание</router-link>
+        <router-link :to="{ name: 'studyplan' }" active-class="link-active" v-if="$store.isStudent()">Учебный
+            план</router-link>
+        <div class="custom-dropdown" v-if="$store.isStudent()">
+            <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute('student_score') }">Оценки
+                <font-awesome-icon icon="caret-down" />
+            </button>
+            <div class="custom-dropdown-content">
+                <router-link :to="{ name: 'trimester_score' }" active-class="link-active">Промежуточные оценки</router-link>
+                <router-link :to="{ name: 'result_score' }" active-class="link-active">Итоговые оценки</router-link>
+            </div>
+        </div>
+        <router-link :to="{ name: 'teacher_score' }" v-if="$store.isTeacher()"
+            active-class="link-active">Оценки</router-link>
+        <router-link :to="{ name: 'result_score' }" v-if="$store.isTeacher()"
+            active-class="link-active">Посещаемость</router-link>
+        <div class="custom-dropdown">
+            <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute('other') }">Другое
+                <font-awesome-icon icon="caret-down" />
+            </button>
+            <div class="custom-dropdown-content">
+                <router-link :to="{ name: 'student_timetable' }" active-class="link-active">Справки</router-link>
+                <router-link :to="{ name: 'student_timetable' }" active-class="link-active"
+                    v-if="$store.isStudent()">Посещаемость</router-link>
+                <router-link :to="{ name: 'student_timetable' }" active-class="link-active"
+                    v-if="$store.isStudent() === 'student'">Преподаватели</router-link>
+                <router-link :to="{ name: 'student_timetable' }" active-class="link-active">Объявления</router-link>
+            </div>
+        </div>
+        <div class="custom-dropdown">
+            <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute('profile') }">Профиль
+                <font-awesome-icon icon="caret-down" />
+            </button>
+            <div class="custom-dropdown-content">
+                <router-link :to="{ name: 'user_profiles' }" active-class="link-active">Сменить профиль</router-link>
+                <a @click="is_change_password_modal = true">Изменить пароль</a>
+                <a @click="is_change_username_modal = true">Изменить имя пользователя</a>
+                <a @click="is_change_email_modal = true">Изменить email</a>
+                <a @click="$store.logout()">Выйти</a>
+                <a @click="$store.logoutAll()">Выйти из всех устройств</a>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { inject, ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import ChangeUsername from '@/components/ChangeUsername.vue'
+import ChangeEmail from '@/components/ChangeEmail.vue';
+import ChangePassword from '@/components/ChangePassword.vue';
+
+const $store = inject('$userStore')
+
+const router = useRouter()
+const route = useRoute()
+
+let is_change_username_modal = ref(false)
+let is_change_password_modal = ref(false)
+let is_change_email_modal = ref(false)
+
+
+const IsParrentRoute = (parent_route_name) => {
+    let is_found = null;
+    router.getRoutes().forEach((r) => {
+        (r.children || []).forEach((ch) => {
+            if (r.path + "/" + ch.path == route.path) {
+                is_found = r;
+            }
+        });
+    });
+    if (is_found) {
+        return is_found.name === parent_route_name ? true : false
+    }
+}
+
+</script>
+
+<style lang="scss" scoped>
+.link-active,
+.link-active-dropdown {
+    font-weight: 700;
+    color: $main-color-hover !important;
+}
+
+.custom-navbar {
+    overflow: hidden;
+    background-color: $main-color;
+
+    & a {
+        float: left;
+        font-size: 16px;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        cursor: pointer;
+
+        &:not(.link-active):hover {
+            background-color: $main-color-hover;
+        }
+    }
+}
+
+.custom-dropdown {
+    transition: 0.5s;
+    float: left;
+    overflow: hidden;
+}
+
+.custom-dropbtn {
+    font-size: 16px;
+    border: none;
+    outline: none;
+    color: white;
+    padding: 14px 16px;
+    background-color: inherit;
+    font-family: inherit;
+    margin: 0;
+
+    &:not(.link-active-dropdown):hover {
+        background-color: $main-color-hover;
+    }
+}
+
+.custom-navbar {
+
+    &a:hover() {
+        background-color: $main-color-hover;
+        color: white
+    }
+}
+
+.custom-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 15px;
+
+    & a,
+    div {
+        border-radius: 5px;
+        float: none;
+        color: black;
+        padding: 12px 16px;
+        display: block;
+        text-align: left;
+    }
+
+    & div {
+        cursor: pointer;
+    }
+
+    & a:hover,
+    div:hover {
+        background-color: #ddd !important;
+    }
+}
+
+.custom-dropdown:hover .custom-dropdown-content {
+    display: block;
+}
+
+@media (max-width: 767px) {
+    .custom-navbar {
+        display: none;
+    }
+}
+</style>
