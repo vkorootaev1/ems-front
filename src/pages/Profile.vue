@@ -9,7 +9,7 @@
         <change-username v-if="is_change_username_modal" @close="is_change_username_modal = false"></change-username>
     </Transition>
     <div class="container">
-        <div class="row justify-content-center pt-5">
+        <div class="row justify-content-center pt-5 mx-1">
             <div class="col-lg-6 col-md-8 col-12 base-card profile">
                 <h3>Профиль</h3>
                 <div class="profile-header">
@@ -38,7 +38,6 @@ import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { reductionFIO } from '@/services/user_services';
 import { dateFormat } from '@/services/datetime_services';
-import Navbar from '@/components/Navbar.vue';
 import ChangeEmail from '@/components/ChangeEmail.vue';
 import ChangePassword from '@/components/ChangePassword.vue'
 import ChangeUsername from '@/components/ChangeUsername.vue'

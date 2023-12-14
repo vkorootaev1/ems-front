@@ -7,6 +7,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "vue-loading-overlay/dist/css/index.css";
 import { useLoadingStore } from "@/stores/LoadingStore";
 import { useUserStore } from "@/stores/UserStore";
+import { useNotificationStore } from "@/stores/NotificationsStore";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import vuetify from "./plugins/vuetify";
@@ -36,9 +37,11 @@ app.use(vuetify);
 
 const userStore = useUserStore();
 const loadingStore = useLoadingStore();
+const notificationStore = useNotificationStore();
 
 app.provide("$userStore", userStore);
 app.provide("$loadingStore", loadingStore);
+app.provide("$notificationStore", notificationStore);
 
 app.directive("debounce", vue3Debounce({ lock: true }));
 

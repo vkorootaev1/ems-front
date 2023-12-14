@@ -1,6 +1,7 @@
 <template>
     <div class="container">
         <div class="row justify-content-center" style="max-width: 1000px;">
+
             <div class="col col-lg-10 col-md-10 order-md-2">
                 <div class="row align-items-end mb-2">
                     <div class="col-lg-6 col-12 order-lg-2 order-lg-2 my-2">
@@ -42,16 +43,6 @@
                     <h4>«{{ selected_studyplan_course.course.name }}» ({{
                         selected_study_group.name
                     }}) [{{ selected_studyplan_course.course.type_of_mark }}]</h4>
-                    <div v-if="messages.length" class="messages my-3">
-                        <div class="message" v-for="message in messages" :key="message">
-                            <h4>{{ message }}</h4>
-                        </div>
-                    </div>
-                    <div v-if="errors.length" class="errors my-3">
-                        <div class="error" v-for="error in errors" :key="error">
-                            <h4>* {{ error }}</h4>
-                        </div>
-                    </div>
                     <v-select class="mt-4" label="Контрольное мероприятие" v-model="selected_control_measure"
                         :items="control_measures" variant="outlined" rounded="lg" item-title="name" item-value="id"
                         return-object @update:modelValue="clearMessagesErrors()" hide-details="true"
@@ -75,7 +66,7 @@
                                         <div v-if="score.control_measure.id === selected_control_measure.id">
                                             <div class="row align-middle my-5 align-items-center">
                                                 <div class="col-7 student-fio">
-                                                    <span>{{ reductionFIO(student.student.user) }}</span>
+                                                    <span>{{ reductionFIO(student.user) }}</span>
                                                 </div>
                                                 <div class="col-5 teacher-score">
                                                     <v-text-field label="Оценка" v-model="score.score" rounded="xl"
@@ -89,7 +80,7 @@
                             </div>
                             <div v-else>
                                 <div class="student mx-2">
-                                    <div class="row align-middle my-5">
+                                    <div class="row align-middle mb-5">
                                         <div class="col-7">
                                             <div class="student-score-fio">
                                                 <span style="font-weight: 700;">Студент</span>
@@ -97,12 +88,12 @@
                                         </div>
                                         <div class="col-5">
                                             <div class="student-score-fio">
-                                                <span style="font-weight: 700;">Сумма баллов</span>
+                                                <span style="font-weight: 700;">Оценка</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="score" v-for="item in result_scores" :key="item">
-                                        <div class="row align-middle my-5">
+                                        <div class="row align-middle mb-5">
                                             <div class="col-7">
                                                 <div class="student-score-fio">
                                                     <span>{{ reductionFIO(item.student.user) }}</span>
@@ -110,8 +101,10 @@
                                             </div>
                                             <div class="col-5">
                                                 <div class="student-score-fio">
-                                                    <span class="student-score">{{ sumControlMeasureScores(item.student.id)
-                                                    }}</span>
+                                                    <span
+                                                        :class="['Зачет', '5', '4', '3'].includes(item.score) ? 'student-score' : 'score-false'">{{
+                                                            item.score
+                                                        }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -128,11 +121,13 @@
 
 <script setup>
 import { getStudyGroupsCoursesAPI, getTrimesterAPI, getControlMeasureScoreAPI, multipleUpdateControlMeasureScoreAPI, getResultScoreAPI, multipleUpdateResultScoreAPI } from '@/api/study'
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { formatScoreTeacher } from '@/services/study_services'
 import { reductionFIO } from '@/services/user_services';
 import { TRIMESTER } from '@/constants'
 import { getYear } from '@/services/datetime_services'
+
+const $notificationStore = inject('$notificationStore')
 
 const error_message_course_study_group_teacher = 'Не удалось загрузить преподаваемые дисциплины'
 const error_message_control_measure_scores = 'Не удалось загрузить промежуточные оценки студентов'
@@ -166,7 +161,7 @@ const getStudyGroupsCoursesByTrimester = async () => {
         groups_courses.value = response.data
     }
     catch {
-        errors.value.push(error_message_course_study_group_teacher)
+        $notificationStore.addError(error_message_course_study_group_teacher)
     }
 }
 
@@ -179,7 +174,7 @@ const getStudyGroupsCoursesByGroupCourseName = async () => {
             groups_courses.value = response.data
         }
         catch {
-            errors.value.push(error_message_course_study_group_teacher)
+            $notificationStore.addError(error_message_course_study_group_teacher)
         }
     }
     else {
@@ -195,7 +190,7 @@ const getTrimesters = async () => {
         selected_trimester.value = trimesters.value[0]
     }
     catch {
-        errors.value.push(error_message_trimesters)
+        $notificationStore.addError(error_message_trimesters)
     }
 }
 
@@ -215,7 +210,7 @@ const getControlMeasureScore = async () => {
         getControlMeasureList(control_measure_scores.value)
     }
     catch {
-        errors.value.push(error_message_control_measure_scores)
+        $notificationStore.addError(error_message_control_measure_scores)
     }
 }
 
@@ -226,7 +221,7 @@ const getResultScore = async () => {
         result_scores.value = response.data
     }
     catch {
-        errors.value.push(error_message_result_scores)
+        $notificationStore.addError(error_message_result_scores)
     }
 }
 
@@ -234,20 +229,21 @@ const multipleUpdateControlMeasureScores = async () => {
     try {
         await multipleUpdateControlMeasureScoreAPI(createListControlMeasureScoresUpdated(),
             selected_study_group.value.id, selected_studyplan_course.value.id)
-        messages.value.push(succes_message_update_scores)
+        $notificationStore.addSuccess(succes_message_update_scores)
     }
     catch {
-        errors.value.push(error_message_update_scores)
+        $notificationStore.addError(error_message_update_scores)
     }
 }
 
 const multipleUpdateResultScores = async () => {
     try {
-        await multipleUpdateResultScoreAPI(selected_study_group.value.id, selected_studyplan_course.value.id)
-        messages.value.push(succes_message_update_scores)
+        const response = await multipleUpdateResultScoreAPI(selected_study_group.value.id, selected_studyplan_course.value.id)
+        result_scores.value = response.data
+        $notificationStore.addSuccess(succes_message_update_scores)
     }
     catch {
-        errors.value.push(error_message_update_scores)
+        $notificationStore.addError(error_message_update_scores)
     }
 }
 
@@ -259,24 +255,6 @@ const updateScore = () => {
     else {
         multipleUpdateControlMeasureScores()
     }
-}
-
-
-
-const sumControlMeasureScores = (student_id) => {
-    let sum_control_measures_score = 0
-    if (control_measure_scores.value.length) {
-        control_measure_scores.value.forEach((item1) => {
-            if (item1.student.id === student_id) {
-                item1.scores.forEach((item2) => {
-                    if (item2.score !== null) {
-                        sum_control_measures_score += item2.score
-                    }
-                })
-            }
-        })
-    }
-    return sum_control_measures_score
 }
 
 const createListControlMeasureScoresUpdated = () => {
@@ -361,10 +339,6 @@ const formatTrimester = (trimester) => {
         color: $main-color;
         font-weight: 700;
     }
-}
-
-.hello {
-    color: red !important
 }
 
 .course-group {

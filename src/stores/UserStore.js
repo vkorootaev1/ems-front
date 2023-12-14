@@ -25,7 +25,7 @@ export const useUserStore = defineStore("user", () => {
   const logout = async () => {
     try {
       const response = await logoutAPI();
-      user.value = response.data;
+      user.value = null;
     } catch (e) {
       console.log(e);
     }
@@ -36,7 +36,7 @@ export const useUserStore = defineStore("user", () => {
   const logouAll = async () => {
     try {
       const response = await logoutAllAPI();
-      user.value = response.data;
+      user.value = null;
     } catch (e) {
       console.log(e);
     }

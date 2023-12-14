@@ -85,6 +85,7 @@ const $store = inject('$loadingStore')
   max-width: 500px !important;
 }
 
+.success,
 .score-false,
 .student-score,
 .message,
@@ -92,6 +93,7 @@ const $store = inject('$loadingStore')
   font-weight: 900;
 }
 
+.success,
 .student-score,
 .message {
   color: $main-color;
@@ -153,6 +155,19 @@ i {
   &:hover {
     color: $main-color;
   }
+}
+
+.notifications-wrap-sticky {
+  width: 100%;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.notifications-wrap {
+  width: 100%;
+  position: absolute;
 }
 </style>
 

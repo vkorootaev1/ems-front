@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
+import { useNotificationStore } from "./stores/NotificationsStore";
 import Login from "@/pages/Login";
 import TimeTable from "@/pages/TimeTable";
 import UserProfiles from "@/pages/UserProfiles";
@@ -12,6 +13,7 @@ import StudyPlan from "@/pages/StudyPlan";
 import ScoreTeacher from "@/pages/ScoreTeacher";
 import AttendanceTeacher from "@/pages/AttendanceTeacher";
 import AdvertisementTeacher from "@/pages/AdvertisementTeacher";
+import Teachers from "@/pages/Teachers";
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -73,6 +75,17 @@ export const router = createRouter({
               path: "trimester",
               name: "trimester_score",
               component: ControlMeasureScoreStudent,
+            },
+          ],
+        },
+        {
+          path: "other",
+          name: "student_other",
+          children: [
+            {
+              path: "teachers",
+              name: "teacher_info",
+              component: Teachers,
             },
           ],
         },
@@ -140,7 +153,11 @@ export const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("Token");
   const role = localStorage.getItem("Role");
-  const store = useUserStore();
+  const $userStore = useUserStore();
+  const $notificationStore = useNotificationStore();
+
+  $notificationStore.clear();
+
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!token) {
       next({ name: "login", query: { redirect: to.name } });
@@ -162,7 +179,7 @@ router.beforeEach((to, from, next) => {
   } else if (to.matched.some((record) => record.meta.hideForAuth)) {
     if (token) {
       next(
-        store.isStudent()
+        $userStore.isStudent()
           ? { name: "student_timetable" }
           : { name: "teacher_timetable" }
       );

@@ -2,6 +2,7 @@ import {
   getDaysByWeekYear,
   dateFormatTimeTable,
 } from "@/services/datetime_services";
+const _ = require("lodash");
 
 export const formatTimeTable = (timetable, week, year) => {
   const days_of_week = getDaysByWeekYear(week, year);
@@ -88,11 +89,11 @@ export const formatScoreTeacher = (scores) => {
   let formated_scores = [];
   for (const [student, scores] of Object.entries(group_scores)) {
     formated_scores.push({
-      student: scores[0].student,
+      user: scores[0].student.user,
       scores: scores,
     });
   }
-  return formated_scores;
+  return _.orderBy(formated_scores, "user.last_name");
 };
 
 export const reduceTypeOfPair = (type) => {

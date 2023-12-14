@@ -116,3 +116,20 @@ export const getTrimesterAPI = () => {
     url: "study/trimester/",
   });
 };
+
+export const getTeacherAPI = (page, name = null, id = null) => {
+  let params = {};
+  let teacher_id = "";
+  params.page = page;
+  if (name) {
+    params.name = name;
+  }
+  if (id) {
+    teacher_id = id;
+  }
+  return axios({
+    method: "GET",
+    url: `user/teacher/${teacher_id}`,
+    params: params,
+  });
+};
