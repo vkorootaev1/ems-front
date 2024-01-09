@@ -6,7 +6,7 @@
                 <input type="text" v-model="email" @keyup.enter="changeEmail()" placeholder="Email" class="form__input">
                 <div class="row justify-content-center">
                     <div class="col">
-                        <input type="submit" @click="changeEmail()" value="Восстановить" class="form__btn w-100">
+                        <input type="submit" @click="changeEmail()" value="Изменить" class="form__btn w-100">
                     </div>
                     <div class="col">
                         <input type="submit" value="Закрыть" class="form__btn w-100" @click="$emit('close')">

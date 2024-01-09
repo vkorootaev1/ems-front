@@ -14,7 +14,8 @@
                                 <span class="student-score"
                                     :class="{ 'score-false': ['Незачет', '2'].includes(item.score) }">{{ item.score
                                     }}</span>
-                                <div class="modal-info-wrap" style="display:inline-block; margin-left: 5px;">
+                                <div class="modal-info-wrap d-lg-none"
+                                    style="display:inline-block; margin-left: 5px;">
                                     <i class="bi bi-info-circle modal-info-icon"></i>
                                     <div class="modal-info-body" style="right:20 px">
                                         <div>
@@ -26,10 +27,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="score-info col col-lg-3 d-none d-lg-flex">
+                            <div class="score-info col col-lg-3 d-none d-md-flex">
                                 {{ reductionFIO(item.teacher.user) }}
                             </div>
-                            <div class="score-info col col-lg-2 d-none d-lg-flex">
+                            <div class="score-info col col-lg-2 d-none d-md-flex">
                                 {{ dateTimeFormat(item.date_upd) }}
                             </div>
                         </div>
