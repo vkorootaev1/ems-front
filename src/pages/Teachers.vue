@@ -2,10 +2,11 @@
     <div class="container">
         <div class="row justify-content-center pt-4">
             <div class="col-lg-6 col-md-8 col-12">
-                <v-text-field label="Имя преподавателя" v-model="seacrh_field_teacher_name" rounded="lg" variant="outlined"
+                <v-text-field label="Имя преподавателя" v-model="search_field_teacher_name" rounded="lg" variant="outlined"
                     hide-details="true" type="text" style="max-width: 500px;"
                     v-debounce:800="_ => getTeacher(true)"></v-text-field>
-                <div class="base-card teacher-card" v-for="teacher in teachers" :key="teacher">
+                <div class="base-card teacher-card" v-for="teacher in teachers" :key="teacher"
+                    @click="router.push({ name: 'teacher_info', params: { teacher_id: teacher.id } })">
                     <div>
                         <div class="teacher-photo" v-if="teacher.user.photo">
                             <img :src="teacher.user.photo">
@@ -15,15 +16,11 @@
                         </div>
                     </div>
                     <div class="teacher-info">
-                        <div class="last_name">
-                            {{ teacher.user.last_name }}
-                        </div>
-                        <div class="first_name">
-                            {{ teacher.user.first_name }}
-                        </div>
-                        <div class="patronymic">
-                            {{ teacher.user.patronymic }}
-                        </div>
+                        {{ teacher.user.last_name }}
+                        <br>
+                        {{ teacher.user.first_name }}
+                        <br>
+                        {{ teacher.user.patronymic }}
                     </div>
                 </div>
             </div>
@@ -34,13 +31,21 @@
 </template>
 <script setup>
 import { getTeacherAPI } from '@/api/study'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import InfiniteComponent from '@/components/InfiniteComponent.vue';
+import { useRoute, useRouter } from 'vue-router'
+
+const $notificationStore = inject('$notificationStore')
+
+const router = useRouter()
+const route = useRoute()
+
+const error_message_teachers = 'Не удалось загрузить преподавателей'
 
 let teachers = ref([])
 let page = ref(1)
 let hasNextPage = ref(false)
-let seacrh_field_teacher_name = ref('')
+let search_field_teacher_name = ref('')
 
 onMounted(async () => {
     await getTeacher()
@@ -53,14 +58,15 @@ const getTeacher = async (filtered = false) => {
             page.value = 1
         }
         hasNextPage.value = false
-        const response = await getTeacherAPI(page.value, seacrh_field_teacher_name.value)
+        const response = await getTeacherAPI(page.value, search_field_teacher_name.value)
         teachers.value.push(...response.data.results)
+        router.replace({ name: route.name, query: { ...route.query, page: page.value } })
         if (response.data.next) {
             hasNextPage.value = true;
         }
     }
     catch {
-        console.log('qwe')
+        $notificationStore.addError(error_message_teachers)
     }
 }
 

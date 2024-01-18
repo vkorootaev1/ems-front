@@ -1,14 +1,14 @@
 <template>
     <div class="d-flex flex-row justify-content-center">
-        <div class="pagination-item" :class="{ 'disabled-pagination': chosen_item === 1 }"
+        <div class="pagination-item" :class="{ 'disabled-pagination': chosen_item == 1 }"
             @click="chosen_item > 1 ? changeItem(chosen_item - 1) : ''">
             <i class="bi bi-chevron-left"></i>
         </div>
         <div v-for="item in pagination_list" :key="item" @click="changeItem(item)" class="pagination-item"
-            :class="{ 'active-pagination': item === chosen_item }">
+            :class="{ 'active-pagination': item == chosen_item }">
             {{ item }}
         </div>
-        <div class="pagination-item" :class="{ 'disabled-pagination': chosen_item === props.last_item }"
+        <div class="pagination-item" :class="{ 'disabled-pagination': props.current_item == props.last_item }"
             @click="chosen_item < props.last_item ? changeItem(chosen_item + 1) : ''">
             <i class="bi bi-chevron-right"></i>
         </div>
@@ -98,6 +98,7 @@ const getPaginationList = () => {
 
         & i {
             -webkit-text-stroke: 1px grey;
+            cursor: not-allowed;
         }
     }
 }

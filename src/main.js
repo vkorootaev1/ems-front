@@ -21,9 +21,35 @@ import {
   faTable,
   faBox,
   faUser,
+  faCircle,
+  faEnvelope,
+  faFileArrowDown,
 } from "@fortawesome/free-solid-svg-icons";
 
-library.add(faCaretDown, faCalendarDays, faStar, faTable, faBox, faUser);
+import {
+  faTelegram,
+  faViber,
+  faYoutube,
+  faWhatsapp,
+  faVk,
+} from "@fortawesome/free-brands-svg-icons";
+
+library.add(
+  faCaretDown,
+  faCalendarDays,
+  faStar,
+  faTable,
+  faBox,
+  faUser,
+  faCircle,
+  faTelegram,
+  faViber,
+  faYoutube,
+  faWhatsapp,
+  faVk,
+  faEnvelope,
+  faFileArrowDown
+);
 
 loadFonts();
 

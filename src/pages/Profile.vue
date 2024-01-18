@@ -13,12 +13,10 @@
             <div class="col-lg-6 col-md-8 col-12 base-card profile">
                 <h3>Профиль</h3>
                 <div class="profile-header">
-                    <div class="profile-header-student" v-if="$store.user">
-                        <h5>{{ reductionFIO($store.user.user) }}<span v-if="$store.getUserRole() === 'teacher'">
+                    <div class="profile-header-student" v-if="$userStore.user">
+                        <h5>{{ reductionFIO($userStore.user.user) }}<span v-if="$userStore.isTeacher()">
                                 (преподаватель)</span></h5>
-                        <h5 v-if="$store.getUserRole() === 'student'">{{ $store.user.study_group.name }} ({{
-                            dateFormat($store.user.study_group.begin_date) }} - {{
-        dateFormat($store.user.study_group.end_date) }})</h5>
+                        <h5 v-if="$userStore.isStudent()"> ({{ $userStore.user.study_group.name }})</h5>
                     </div>
                 </div>
                 <div class="profile-functions">
@@ -26,8 +24,8 @@
                     <div class="profile-function" @click="is_change_password_modal = true">Изменить пароль</div>
                     <div class="profile-function" @click="is_change_username_modal = true">Изменить имя пользователя</div>
                     <div class="profile-function" @click="is_change_email_modal = true">Изменить Email</div>
-                    <div class="profile-function" @click="$store.logout()">Выйти</div>
-                    <div class="profile-function" @click="$store.logoutAll()">Выйти из всех устройств</div>
+                    <div class="profile-function" @click="$userStore.logout()">Выйти</div>
+                    <div class="profile-function" @click="$userStore.logoutAll()">Выйти из всех устройств</div>
                 </div>
             </div>
         </div>
@@ -37,13 +35,12 @@
 import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { reductionFIO } from '@/services/user_services';
-import { dateFormat } from '@/services/datetime_services';
 import ChangeEmail from '@/components/ChangeEmail.vue';
 import ChangePassword from '@/components/ChangePassword.vue'
 import ChangeUsername from '@/components/ChangeUsername.vue'
 
 
-const $store = inject('$userStore')
+const $userStore = inject('$userStore')
 
 const router = useRouter()
 

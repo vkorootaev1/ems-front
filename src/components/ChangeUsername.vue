@@ -7,22 +7,18 @@
                     placeholder="Новое имя пользователя" class="form__input">
                 <input type="password" v-model="current_password" @keyup.enter="changeUsername" placeholder="Текущий пароль"
                     class="form__input">
-                <div class="row justify-content-center">
+                <div class="row justify-content-center modal-btns">
                     <div class="col">
                         <input type="submit" @click="changeUsername" value="Изменить" class="form__btn w-100">
                     </div>
                     <div class="col">
-                        <input type="submit" value="Закрыть" class="form__btn w-100" @click="$emit('close')">
+                        <input type="submit" value="Закрыть" class="error__btn w-100" @click="$emit('close')">
                     </div>
                 </div>
-                <div v-if="errors.length" class="errors">
-                    <div class="error" v-for="error in errors" :key="error">
-                        * {{ error }}
-                    </div>
-                </div>
-                <div v-if="messages.length" class="messages">
-                    <div class="message" v-for="message in messages" :key="message">
-                        {{ message }}
+                <div v-if="messages.length">
+                    <div v-for="message in messages" :key="message"
+                        :class="message.type === 'error' ? 'message-error' : 'message-success'">
+                        * {{ message.text }}
                     </div>
                 </div>
             </div>
@@ -41,19 +37,23 @@ const success_message_change = 'Имя пользователя успешно �
 
 let new_username = ref('')
 let current_password = ref('')
-let errors = ref([])
 let messages = ref([])
 
 const validate = () => {
-    errors.value = []
     messages.value = []
     if (!new_username.value) {
-        errors.value.push(error_message_empty_username)
+        messages.value.push({
+            text: error_message_empty_username,
+            type: 'error'
+        })
     }
     if (!current_password.value) {
-        errors.value.push(error_message_empty_current_password)
+        messages.value.push({
+            text: error_message_empty_current_password,
+            type: 'error'
+        })
     }
-    if (errors.value.length) {
+    if (messages.value.length) {
         return false
     }
     return true
@@ -63,18 +63,30 @@ const changeUsername = async () => {
     if (validate()) {
         try {
             await changeUsernameAPI(new_username.value, current_password.value)
-            messages.value.push(success_message_change)
+            messages.value.push({
+                text: success_message_change,
+                type: 'success'
+            })
         }
         catch (e) {
             try {
                 if (Object.prototype.hasOwnProperty.call(e.response.data, 'new_username')) {
                     if (e.response.data.new_username[0] === 'Пользователь с таким именем уже существует.') {
-                        errors.value.push(error_message_already_exists_username)
+                        messages.value.push({
+                            text: error_message_already_exists_username,
+                            type: 'error'
+                        })
                     }
                 }
+                else {
+                    messages.value.push({
+                        text: error_message_change_username,
+                        type: 'error'
+                    })
+                }
             }
-            catch {
-                errors.value.push(error_message_change_username)
+            catch (e) {
+                console.log(e)
             }
         }
     }

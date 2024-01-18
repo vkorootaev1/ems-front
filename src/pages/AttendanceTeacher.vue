@@ -1,40 +1,36 @@
 <template>
-    {{ current_item }}
-    <div class="container">
-        <div class="row justify-content-center my-5">
-            <div class="col-4">
-                <div style="height: 500px;"></div>
-                <v-select label="Контрольное мероприятие" v-model="current_item" return-object :items="items"
-                    variant="outlined" rounded="xl" item-title="last"></v-select>
-            </div>
-        </div>
+    {{ selected }}
+    <v-autocomplete v-model="selected" :items="items" v-model:search="search1" outlined dense small-chips
+        label="Autocomplete" multiple v-debounce:400="helloPrint">
+        <template v-slot:selection="">
+
+        </template>
+    </v-autocomplete>
+    <button @click="items = ['foo1', 'bar1', 'fizz1', 'buzz1']">
+        Изменить
+    </button>
+    <h3>Выбранные</h3>
+    <div v-for="select in selected" :key="select">
+        {{ select }}
     </div>
 </template>
+ 
+<script>
+export default {
+    name: 'AttendanceTeacher',
 
-<script setup>
-import { ref } from 'vue';
-
-const items = ref([
-    {
-        id: 1,
-        name: "John",
-        last: "Doe"
-    },
-    {
-        id: 2,
-        name: "Harry",
-        last: "Potter"
-    },
-    {
-        id: 3,
-        name: "George",
-        last: "Bush"
+    data: () => ({
+        items: ['foo', 'bar', 'fizz', 'buzz'],
+        selected: [],
+        value: null,
+        search1: "",
+    }),
+    methods: {
+        helloPrint() {
+            console.log('Я тут')
+            console.log(this.search1)
+        }
     }
-])
-const current_item = ref({
-    name: "John",
-    last: "Doe"
-})
+}
 </script>
-
-<style lang="scss"></style>
+ 

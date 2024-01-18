@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { generateUID } from "@/services/other_services";
 
 export const useNotificationStore = defineStore("notification", () => {
   const notifications = ref([]);
@@ -7,12 +8,12 @@ export const useNotificationStore = defineStore("notification", () => {
   const removeTimeout = (notification) => {
     setTimeout(() => {
       remove(notification);
-    }, 5000);
+    }, 4000);
   };
 
   const addSuccess = (text) => {
     const notification = {
-      id: Date.now(),
+      id: generateUID(),
       text: text,
       type: "success",
     };
@@ -22,7 +23,7 @@ export const useNotificationStore = defineStore("notification", () => {
 
   const addError = (text) => {
     const notification = {
-      id: Date.now(),
+      id: generateUID(),
       text: text,
       type: "error",
     };

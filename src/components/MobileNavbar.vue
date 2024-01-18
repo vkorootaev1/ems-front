@@ -3,25 +3,25 @@
         <div class="row custom-navbar justify-content-between mx-auto px-2">
             <div class="col-2 custom-navbar-content">
                 <router-link class="link" active-class="link-active"
-                    :to="$store.isStudent() ? { name: 'student_timetable' } : { name: 'teacher_timetable' }">
+                    :to="$userStore.isStudent() ? { name: 'student_timetable' } : { name: 'teacher_timetable' }">
                     <font-awesome-icon icon="calendar-days" class="font-icon" />
                     <p>Расписание</p>
                 </router-link>
             </div>
             <div class="col-2 custom-navbar-content">
                 <router-link class="link" active-class="link-active"
-                    :to="$store.isStudent() ? { name: 'student_score' } : { name: 'teacher_score' }">
+                    :to="$userStore.isStudent() ? { name: 'student_score' } : { name: 'teacher_score' }">
                     <font-awesome-icon icon="star" class="font-icon" />
                     <p>Оценки</p>
                 </router-link>
             </div>
-            <div class="col-2 custom-navbar-content" v-if="$store.isStudent()">
+            <div class="col-2 custom-navbar-content" v-if="$userStore.isStudent()">
                 <router-link class="link" active-class="link-active" :to="{ name: 'studyplan' }">
                     <font-awesome-icon icon="table" class="font-icon" />
                     <p>План</p>
                 </router-link>
             </div>
-            <div class="col-3 custom-navbar-content" v-if="$store.isTeacher()">
+            <div class="col-3 custom-navbar-content" v-if="$userStore.isTeacher()">
                 <router-link class="link" active-class="link-active" :to="{ name: 'student_timetable' }">
                     <font-awesome-icon icon="table" class="font-icon" />
                     <p>Посещаемость</p>
@@ -46,7 +46,7 @@
 <script setup>
 import { inject } from 'vue'
 
-const $store = inject('$userStore')
+const $userStore = inject('$userStore')
 </script>
 
 <style lang='scss' scoped>

@@ -1,19 +1,21 @@
 <template>
     <Transition>
-        <change-email v-if="is_change_email_modal" @close="is_change_email_modal = false"></change-email>
+        <change-email v-if="is_change_email_modal && $userStore.user" @close="is_change_email_modal = false"></change-email>
     </Transition>
     <Transition>
-        <change-password v-if="is_change_password_modal" @close="is_change_password_modal = false"></change-password>
+        <change-password v-if="is_change_password_modal && $userStore.user"
+            @close="is_change_password_modal = false"></change-password>
     </Transition>
     <Transition>
-        <change-username v-if="is_change_username_modal" @close="is_change_username_modal = false"></change-username>
+        <change-username v-if="is_change_username_modal && $userStore.user"
+            @close="is_change_username_modal = false"></change-username>
     </Transition>
     <div class="custom-navbar">
-        <router-link :to="$store.isStudent() ? { name: 'student_timetable' } : { name: 'teacher_timetable' }"
+        <router-link :to="$userStore.isStudent() ? { name: 'student_timetable' } : { name: 'teacher_timetable' }"
             active-class="link-active">Расписание</router-link>
-        <router-link :to="{ name: 'studyplan' }" active-class="link-active" v-if="$store.isStudent()">Учебный
+        <router-link :to="{ name: 'studyplan' }" active-class="link-active" v-if="$userStore.isStudent()">Учебный
             план</router-link>
-        <div class="custom-dropdown" v-if="$store.isStudent()">
+        <div class="custom-dropdown" v-if="$userStore.isStudent()">
             <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute('student_score') }">Оценки
                 <font-awesome-icon icon="caret-down" />
             </button>
@@ -22,20 +24,20 @@
                 <router-link :to="{ name: 'result_score' }" active-class="link-active">Итоговые оценки</router-link>
             </div>
         </div>
-        <router-link :to="{ name: 'teacher_score' }" v-if="$store.isTeacher()"
+        <router-link :to="{ name: 'teacher_score' }" v-if="$userStore.isTeacher()"
             active-class="link-active">Оценки</router-link>
-        <router-link :to="{ name: 'result_score' }" v-if="$store.isTeacher()"
+        <router-link :to="{ name: 'result_score' }" v-if="$userStore.isTeacher()"
             active-class="link-active">Посещаемость</router-link>
         <div class="custom-dropdown">
-            <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute('other') }">Другое
+            <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute('student_other') }">Другое
                 <font-awesome-icon icon="caret-down" />
             </button>
             <div class="custom-dropdown-content">
                 <router-link :to="{ name: 'student_timetable' }" active-class="link-active">Справки</router-link>
                 <router-link :to="{ name: 'student_timetable' }" active-class="link-active"
-                    v-if="$store.isStudent()">Посещаемость</router-link>
-                <router-link :to="{ name: 'student_timetable' }" active-class="link-active"
-                    v-if="$store.isStudent() === 'student'">Преподаватели</router-link>
+                    v-if="$userStore.isStudent()">Посещаемость</router-link>
+                <router-link :to="{ name: 'teachers_info' }" active-class="link-active"
+                    v-if="$userStore.isStudent()">Преподаватели</router-link>
                 <router-link :to="{ name: 'student_timetable' }" active-class="link-active">Объявления</router-link>
             </div>
         </div>
@@ -44,12 +46,16 @@
                 <font-awesome-icon icon="caret-down" />
             </button>
             <div class="custom-dropdown-content">
+                <div class="user-info">
+                    {{ $userStore.userShow() }}
+                </div>
                 <router-link :to="{ name: 'user_profiles' }" active-class="link-active">Сменить профиль</router-link>
                 <a @click="is_change_password_modal = true">Изменить пароль</a>
                 <a @click="is_change_username_modal = true">Изменить имя пользователя</a>
                 <a @click="is_change_email_modal = true">Изменить email</a>
-                <a @click="$store.logout()">Выйти</a>
-                <a @click="$store.logoutAll()">Выйти из всех устройств</a>
+                <router-link :to="{ name: 'contact' }" active-class="link-active">Сменить контакты</router-link>
+                <a @click="$userStore.logout()">Выйти</a>
+                <a @click="$userStore.logoutAll()">Выйти из всех устройств</a>
             </div>
         </div>
     </div>
@@ -62,7 +68,7 @@ import ChangeUsername from '@/components/ChangeUsername.vue'
 import ChangeEmail from '@/components/ChangeEmail.vue';
 import ChangePassword from '@/components/ChangePassword.vue';
 
-const $store = inject('$userStore')
+const $userStore = inject('$userStore')
 
 const router = useRouter()
 const route = useRoute()
@@ -149,7 +155,7 @@ const IsParrentRoute = (parent_route_name) => {
     background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1;
+    z-index: 3;
     border-radius: 15px;
 
     & a,
@@ -162,7 +168,7 @@ const IsParrentRoute = (parent_route_name) => {
         text-align: left;
     }
 
-    & div {
+    & div:not(.user-info) {
         cursor: pointer;
     }
 
@@ -174,6 +180,11 @@ const IsParrentRoute = (parent_route_name) => {
 
 .custom-dropdown:hover .custom-dropdown-content {
     display: block;
+}
+
+.user-info {
+    font-weight: bold;
+    pointer-events: none;
 }
 
 @media (max-width: 767px) {

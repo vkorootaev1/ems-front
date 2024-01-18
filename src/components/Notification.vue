@@ -1,7 +1,7 @@
 <template>
     <div class="notification">
         <i class="bi bi-x-lg" @click="removeNotification"></i>
-        <span :class="props.notification.type === 'success' ? 'success' : 'error'">{{ props.notification.text }}</span>
+        <span :class="props.notification.type === 'success' ? 'message-success' : 'message-error'">{{ props.notification.text }}</span>
     </div>
 </template>
 <script setup>

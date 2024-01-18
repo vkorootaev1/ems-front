@@ -47,24 +47,25 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="errors.length" class="errors">
-                    <div class="error" v-for="error in errors" :key="error">
-                        * {{ error }}
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
+import { useRoute, useRouter } from 'vue-router'
 import { getControlMeasureScoreAPI, getStudentCurrentTrimesterAPI } from '@/api/study'
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { formatControlMeasureScore } from '@/services/study_services'
 import { dateTimeFormat } from '@/services/datetime_services'
 import { reductionFIO } from '@/services/user_services';
 import SwitcherScore from '@/components/SwitcherScore.vue'
 import Pagination from '@/components/Pagination.vue';
+
+const $notificationStore = inject('$notificationStore')
+
+const router = useRouter()
+const route = useRoute()
 
 const error_message_control_measure_scores = 'Не удалось загрузить промежуточные оценки'
 const error_message_current_trimester = 'Не удалось загрузить текущий триместр'
@@ -73,10 +74,11 @@ let last_trimester = null;
 
 let trimester = ref(null)
 let scores = ref([])
-let errors = ref([])
 
 onMounted(async () => {
     await getStudentCurrentTrimester();
+    trimester.value = (!isNaN(route.query.number) && route.query.number <= trimester.value) ? route.query.number : trimester.value
+    router.replace({ name: route.name, query: { ...route.query, number: trimester.value } })
     await getControlMeasureScore();
 })
 
@@ -84,9 +86,10 @@ const getControlMeasureScore = async () => {
     try {
         const response = await getControlMeasureScoreAPI(trimester.value, null, null)
         scores.value = formatControlMeasureScore(response.data)
+        router.replace({ name: route.name, query: { ...route.query, number: trimester.value } })
     }
     catch {
-        errors.value.push(error_message_control_measure_scores)
+        $notificationStore.addError(error_message_control_measure_scores)
     }
 }
 
@@ -97,7 +100,7 @@ const getStudentCurrentTrimester = async () => {
         last_trimester = response.data.current_student_trimester
     }
     catch {
-        errors.value.push(error_message_current_trimester)
+        $notificationStore.addError(error_message_current_trimester)
     }
 }
 

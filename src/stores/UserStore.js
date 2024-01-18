@@ -2,19 +2,21 @@ import { defineStore } from "pinia";
 import { currentUserAPI, logoutAPI, logoutAllAPI } from "@/api/auth";
 import { ref } from "vue";
 import { clearAuth } from "@/services/auth_services";
-import { useRouter } from "vue-router";
+import { router } from "@/router";
+import { useNotificationStore } from "./NotificationsStore";
+import { reductionFIO } from "@/services/user_services";
 
 export const useUserStore = defineStore("user", () => {
-  const user = ref(null);
+  const notificationStore = useNotificationStore();
 
-  const router = useRouter();
+  const user = ref(null);
 
   const getCurrentUser = async () => {
     try {
       const response = await currentUserAPI();
       user.value = response.data;
     } catch (e) {
-      console.log(e);
+      notificationStore.addError("Не удалось загрузить текущий профиль");
     }
   };
 
@@ -24,7 +26,7 @@ export const useUserStore = defineStore("user", () => {
 
   const logout = async () => {
     try {
-      const response = await logoutAPI();
+      await logoutAPI();
       user.value = null;
     } catch (e) {
       console.log(e);
@@ -33,9 +35,9 @@ export const useUserStore = defineStore("user", () => {
     router.push({ name: "login" });
   };
 
-  const logouAll = async () => {
+  const logoutAll = async () => {
     try {
-      const response = await logoutAllAPI();
+      await logoutAllAPI();
       user.value = null;
     } catch (e) {
       console.log(e);
@@ -67,14 +69,31 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
+  const userShow = () => {
+    if (user.value) {
+      if (isStudent()) {
+        return `${reductionFIO(user.value.user)} (${
+          user.value.study_group.name
+        })`;
+      } else if (isTeacher()) {
+        return `${reductionFIO(user.value.user)} (преподаватель)`;
+      } else {
+        return "Неизвестный пользователь";
+      }
+    } else {
+      return "Неизвестный пользователь";
+    }
+  };
+
   return {
     user,
     getCurrentUser,
     getUserRole,
     logout,
-    logouAll,
+    logoutAll,
     setUserEmail,
     isStudent,
     isTeacher,
+    userShow,
   };
 });

@@ -28,16 +28,26 @@ const $store = inject('$loadingStore')
   transition: all .5s ease;
 }
 
+.error__btn,
 .form__btn {
   border: none;
   transition: all .5s ease;
   height: 50px;
   border-radius: 30px;
   color: white !important;
-  background-color: $main-color;
-  margin-top: 0.5em;
-  margin-bottom: 1em;
   padding: 6px;
+}
+
+.form__btn {
+  background-color: $main-color;
+}
+
+.error__btn {
+  background-color: #b82b14;
+}
+
+.modal-btns {
+  margin-top: 0.7em !important;
 }
 
 .form__btn:hover,
@@ -46,10 +56,15 @@ const $store = inject('$loadingStore')
   color: #fff;
 }
 
+.error__btn:hover,
+.error__btn:focus {
+  background-color: #632920;
+  color: #fff;
+}
 
 .base-card,
 .huge-card {
-  padding: 20px 20px;
+  padding: 10px 10px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 10px;
 }
@@ -70,7 +85,7 @@ const $store = inject('$loadingStore')
 
 .custom-modal-wrap {
   position: fixed;
-  z-index: 2;
+  z-index: 5;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.4);
@@ -85,22 +100,26 @@ const $store = inject('$loadingStore')
   max-width: 500px !important;
 }
 
-.success,
 .score-false,
 .student-score,
-.message,
-.error {
+.message-success,
+.message-error {
   font-weight: 900;
 }
 
-.success,
+.certificate-preparing {
+  color: #E4D00A
+}
+
+.certificate-ready,
 .student-score,
-.message {
+.message-success {
   color: $main-color;
 }
 
+.certificate-cancel,
 .score-false,
-.error {
+.message-error {
   color: #ff2400;
 }
 

@@ -1,13 +1,12 @@
 <template>
     <div class="container">
         <div class="row justify-content-center" style="max-width: 1000px;">
-
             <div class="col col-lg-10 col-md-10 order-md-2">
                 <div class="row align-items-end mb-2">
                     <div class="col-lg-6 col-12 order-lg-2 order-lg-2 my-2">
                         <v-select class="mt-4" label="Триместр" v-model="selected_trimester" :items="trimesters"
                             variant="outlined" rounded="lg" return-object item-value="id"
-                            @update:modelValue="getStudyGroupsCoursesByTrimester()" hide-details="true">
+                            @update:modelValue="getStudyGroupsCoursesByTrimester" hide-details="true">
                             <template v-slot:item="{ item: { raw }, props: { onClick } }">
                                 <v-list-item :class="{ 'v-list-item--active': selected_trimester.id === raw.id }"
                                     @click="onClick">{{ formatTrimester(raw) }} <span v-if="raw.current">&nbsp;
@@ -32,7 +31,8 @@
                     <div v-if="groups_courses.length">
                         <div class="course-group my-2" @click="getScores(item)" v-for="item in groups_courses" :key="item"
                             :class="{ 'active-course-group': item.study_plan_course === selected_studyplan_course && item.study_group === selected_study_group }">
-                            <h6>{{ item.study_plan_course.course.name }} ({{ item.study_group.name }})</h6>
+                            <h6>{{ item.study_plan_course.course.name }} ({{ item.study_group.name }}) [<strong>{{
+                                formatTrimester(item.trimester) }}</strong>]</h6>
                         </div>
                     </div>
                     <div v-else class="course-group my-2 error">
@@ -45,7 +45,7 @@
                     }}) [{{ selected_studyplan_course.course.type_of_mark }}]</h4>
                     <v-select class="mt-4" label="Контрольное мероприятие" v-model="selected_control_measure"
                         :items="control_measures" variant="outlined" rounded="lg" item-title="name" item-value="id"
-                        return-object @update:modelValue="clearMessagesErrors()" hide-details="true"
+                        return-object hide-details="true"
                         no-data-text="Контрольных мероприятий не предусмотрено"></v-select>
                     <div v-if="selected_control_measure">
                         <div class="score-upd-btn text-center">
@@ -146,8 +146,6 @@ let control_measure_scores = ref([])
 let result_scores = ref([])
 let control_measures = ref([])
 let selected_control_measure = ref(null)
-let errors = ref([])
-let messages = ref([])
 
 onMounted(() => {
     getStudyGroupsCoursesByTrimester()
@@ -165,20 +163,14 @@ const getStudyGroupsCoursesByTrimester = async () => {
     }
 }
 
-
 const getStudyGroupsCoursesByGroupCourseName = async () => {
-    if (search_field_groups_courses.value) {
-        clearScores()
-        try {
-            const response = await getStudyGroupsCoursesAPI(null, search_field_groups_courses.value)
-            groups_courses.value = response.data
-        }
-        catch {
-            $notificationStore.addError(error_message_course_study_group_teacher)
-        }
+    clearScores()
+    try {
+        const response = await getStudyGroupsCoursesAPI(null, search_field_groups_courses.value)
+        groups_courses.value = response.data
     }
-    else {
-        getStudyGroupsCoursesByTrimester()
+    catch {
+        $notificationStore.addError(error_message_course_study_group_teacher)
     }
 }
 
@@ -195,7 +187,6 @@ const getTrimesters = async () => {
 }
 
 const getScores = async (group_course) => {
-    clearMessagesErrors()
     selected_studyplan_course.value = group_course.study_plan_course
     selected_study_group.value = group_course.study_group
     await getControlMeasureScore()
@@ -248,7 +239,6 @@ const multipleUpdateResultScores = async () => {
 }
 
 const updateScore = () => {
-    clearMessagesErrors()
     if (selected_control_measure.value.id === 0) {
         multipleUpdateResultScores()
     }
@@ -272,11 +262,6 @@ const createListControlMeasureScoresUpdated = () => {
         })
         return list_scores_updated
     }
-}
-
-const clearMessagesErrors = () => {
-    errors.value = []
-    messages.value = []
 }
 
 const clearScores = () => {
@@ -360,5 +345,9 @@ const formatTrimester = (trimester) => {
         color: white;
         background-color: $main-color;
     }
+}
+
+.score-upd-btn {
+    margin: 0.5em auto;
 }
 </style>

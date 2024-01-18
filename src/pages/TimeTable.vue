@@ -1,6 +1,9 @@
 <template>
     <div class="container">
         <div class="row justify-content-center pt-2">
+            <div class="by_teacher" v-if="by_teacher">
+                <h5>Расписание ({{ reductionFIO(by_teacher.user) }})</h5>
+            </div>
             <pagination :current_item="week" :last_item="count_of_weeks" @changeItem="changeWeek"
                 v-if="week && count_of_weeks"></pagination>
             <div class="col-lg-6 col-md-8 col-12">
@@ -13,7 +16,7 @@
                                 <div>
                                     {{ START_PAIRS[pair.index_pair] }}
                                 </div>
-                                <div v-if="$store.user && $store.getUserRole() === 'teacher' && pair.course">
+                                <div v-if="$userStore.user && $userStore.isTeacher() && pair.course">
                                     <font-awesome-icon icon="table" class="font-awesome-icon" />
                                     <font-awesome-icon icon="check" style="color:#008080; margin-left: 3px;"
                                         v-if="pair.is_attendance" />
@@ -28,15 +31,18 @@
                                         pair.classroom.floor }} этаж)
                                 </div>
                                 <div class="modal-info-wrap pair-groups-wrap"
-                                    v-if="$store.user && $store.getUserRole() === 'teacher'">
+                                    v-if="$userStore.user && $userStore.isTeacher() || route.name === 'teacher_timetable_info'">
                                     <i class="bi bi-info-circle modal-info-icon"></i>
                                     <div class="modal-info-body" style="right:20px">
                                         <div v-for=" group in pair.groups" :key="group">
                                             {{ group }}</div>
                                     </div>
                                 </div>
-                                <div class="pair-teacher" v-if="$store.user && $store.getUserRole() === 'student'">
-                                    {{ reductionFIO(pair.teacher.user) }}
+                                <div class="pair-teacher"
+                                    v-if="$userStore.user && $userStore.isStudent() && route.name !== 'teacher_timetable_info'">
+                                    <span
+                                        @click="router.push({ name: 'teacher_info', params: { teacher_id: pair.teacher.id } })">{{
+                                            reductionFIO(pair.teacher.user) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -45,61 +51,91 @@
                         <p>Пар нет!</p>
                     </div>
                 </div>
-                <div v-if="errors.length" class="errors">
-                    <div class="error" v-for="error in errors" :key="error">
-                        * {{ error }}
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { getTimeTableAPI } from '@/api/study'
+import { getTimeTableAPI, getTeacherAPI } from '@/api/study'
+import { useRoute, useRouter } from 'vue-router'
 import { formatTimeTable, reduceTypeOfPair } from '@/services/study_services'
 import { reductionFIO } from '@/services/user_services'
-import { getCurrentWeek, getCurrentYear, dateFormatTimeTable, getCountOfWeeksInYear } from '@/services/datetime_services'
+import { getCurrentWeek, getCurrentYear, getCountOfWeeksInYear } from '@/services/datetime_services'
 import { START_PAIRS } from '@/constants'
 import { ref, inject, onMounted } from 'vue';
 import Pagination from '@/components/Pagination.vue';
 
-const $store = inject('$userStore')
+const $userStore = inject('$userStore')
+const $notificationStore = inject('$notificationStore')
+
+const router = useRouter()
+const route = useRoute()
 
 const error_message_timetable = 'Не удалось загрузить расписание'
+const error_message_teacher = 'Не удалось загрузить преподавателя'
 
 let year;
 let count_of_weeks;
 let week;
+let by_teacher = ref(null);
 
 let timetable = ref([])
-let errors = ref([])
 
 onMounted(() => {
-    year = getCurrentYear()
-    week = getCurrentWeek()
-    count_of_weeks = getCountOfWeeksInYear()
+    week = !isNaN(route.query.week) ? route.query.week : getCurrentWeek()
+    year = !isNaN(route.query.year) ? route.query.year : getCurrentYear()
+    route.name === 'teacher_timetable_info' ? getTeacher() : null
+    count_of_weeks = getCountOfWeeksInYear(year)
+    week = week > count_of_weeks ? count_of_weeks : week
+    week = week < 1 ? 1 : week
+    router.replace({ name: route.name, query: { ...route.query, year: year, week: week } })
     getTimeTable()
 })
 
 const getTimeTable = async () => {
     try {
-        const response = await getTimeTableAPI(week, year)
+        const response = await getTimeTableAPI(week, year, route.params.teacher_id)
         timetable.value = formatTimeTable(response.data, week, year)
     }
     catch {
-        errors.value.push(error_message_timetable)
+        $notificationStore.addError(error_message_timetable)
+    }
+}
+
+const getTeacher = async () => {
+    try {
+        const response = await getTeacherAPI(null, null, route.params.teacher_id)
+        by_teacher.value = response.data
+    }
+    catch {
+        $notificationStore.addError(error_message_teacher)
     }
 }
 
 const changeWeek = (value) => {
     week = value
+    router.replace({ name: route.name, query: { ...route.query, year: year, week: week } })
     getTimeTable()
 }
-
 </script>
 
 <style lang="scss" scoped>
+.pair-teacher {
+    font-style: oblique;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover {
+        color: $main-color-hover;
+    }
+}
+
+.by_teacher {
+    margin: 5px auto;
+    text-align: center
+}
+
 .pair-groups-wrap,
 .pair-teacher {
     text-align: right;

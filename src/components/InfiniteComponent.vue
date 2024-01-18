@@ -3,10 +3,7 @@ import { onMounted, onUnmounted, defineProps, defineEmits } from 'vue';
 
 const emit = defineEmits(['incrementPage', 'loadAPI'])
 
-const props = defineProps({
-    hasNextPage: Boolean,
-    page: Number,
-})
+const props = defineProps(['hasNextPage', 'page'])
 
 
 onMounted(() => {

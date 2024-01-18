@@ -15,11 +15,6 @@
                             item.course.independent_worktime }}</span></div>
                     </div>
                 </div>
-                <div v-if="errors.length" class="errors">
-                    <div class="error" v-for="error in errors" :key="error">
-                        * {{ error }}
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -28,12 +23,13 @@
 <script setup>
 import { getStudyPlanAPI } from '@/api/study'
 import { formatStudyPlan } from '@/services/study_services'
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
+
+const $notificationStore = inject('$notificationStore')
 
 const error_message_studyplan = 'Не удалось загрузить учебный план'
 
 let studyplan = ref([])
-let errors = ref([])
 
 onMounted(() => {
     getStudyPlan()
@@ -45,7 +41,7 @@ const getStudyPlan = async () => {
         studyplan.value = formatStudyPlan(response.data)
     }
     catch {
-        errors.value.push(error_message_studyplan)
+        $notificationStore.addError(error_message_studyplan)
     }
 }
 

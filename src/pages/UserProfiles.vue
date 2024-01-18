@@ -7,7 +7,7 @@
                     <div v-if="profiles.students" class="students">
                         <div class="students-profile" v-for="student in profiles.students" :key="student">
                             <div class="base-card student-profile" @click="chooseProfile(student)"
-                                :class="{ 'active': $store.user && student.id === $store.user.id }">
+                                :class="{ 'active': $userStore.user && student.id === $userStore.user.id }">
                                 <span>{{ reductionFIO(student.user) }} [{{
                                     student.study_group.name }} ({{
         dateFormat(student.study_group.begin_date) }} - {{
@@ -17,14 +17,9 @@
                     </div>
                     <div class="teacher" v-if="profiles.teacher">
                         <div class="base-card teacher-profile" @click="chooseProfile(profiles.teacher)"
-                            :class="{ 'active': $store.user && profiles.teacher.id === $store.user.id }">
+                            :class="{ 'active': $userStore.user && profiles.teacher.id === $userStore.user.id }">
                             <span>{{ reductionFIO(profiles.teacher.user) }} (преподаватель)</span>
                         </div>
-                    </div>
-                </div>
-                <div v-if="errors.length" class="errors">
-                    <div class="error" v-for="error in errors" :key="error">
-                        * {{ error }}
                     </div>
                 </div>
             </div>
@@ -39,18 +34,18 @@ import { userProfilesAPI } from '@/api/auth'
 import { reductionFIO } from '@/services/user_services'
 import { dateFormat } from '@/services/datetime_services'
 
-const $store = inject('$userStore')
+const $userStore = inject('$userStore')
+const $notificationStore = inject('$notificationStore')
 
 const router = useRouter()
 const route = useRoute()
 
-const profiles_error_message = 'Не удалось загрузить профили'
+const error_message_profiles = 'Не удалось загрузить профили'
 let base_redirect_name = 'student_timetable'
 
 const redirect_name = route.query.redirect
 
 const profiles = ref(null)
-let errors = ref([])
 
 onMounted(() => {
     userProfiles()
@@ -61,15 +56,14 @@ const userProfiles = async () => {
         const response = await userProfilesAPI()
         profiles.value = response.data
     }
-    catch (e) {
-        console.log(e)
-        errors.value.push(profiles_error_message)
+    catch {
+        $notificationStore(error_message_profiles)
     }
 }
 
 const chooseProfile = (profile) => {
-    const is_first_choose = $store.user
-    $store.user = profile
+    const is_first_choose = $userStore.user
+    $userStore.user = profile
     if (profile.role === 'student') {
         localStorage.setItem('Student', profile.id)
         localStorage.setItem('Role', 'student')

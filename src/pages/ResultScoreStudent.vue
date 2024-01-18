@@ -14,8 +14,7 @@
                                 <span class="student-score"
                                     :class="{ 'score-false': ['Незачет', '2'].includes(item.score) }">{{ item.score
                                     }}</span>
-                                <div class="modal-info-wrap d-lg-none"
-                                    style="display:inline-block; margin-left: 5px;">
+                                <div class="modal-info-wrap d-lg-none" style="display:inline-block; margin-left: 5px;">
                                     <i class="bi bi-info-circle modal-info-icon"></i>
                                     <div class="modal-info-body" style="right:20 px">
                                         <div>
@@ -36,11 +35,6 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="errors.length" class="errors">
-                    <div class="error" v-for="error in errors" :key="error">
-                        * {{ error }}
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -48,16 +42,17 @@
 
 <script setup>
 import { getResultScoreAPI } from '@/api/study'
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { formatResultScore } from '@/services/study_services'
 import { dateTimeFormat } from '@/services/datetime_services'
 import { reductionFIO } from '@/services/user_services';
 import SwitcherScore from '@/components/SwitcherScore.vue'
 
+const $notificationStore = inject('$notificationStore')
+
 const error_message_result_scores = 'Не удалось загрузить итоговые оценки'
 
 let scores = ref([])
-let errors = ref([])
 
 onMounted(async () => {
     await getResultScore()
@@ -69,7 +64,7 @@ const getResultScore = async () => {
         scores.value = formatResultScore(response.data)
     }
     catch {
-        errors.value.push(error_message_result_scores)
+        $notificationStore.addError(error_message_result_scores)
     }
 }
 

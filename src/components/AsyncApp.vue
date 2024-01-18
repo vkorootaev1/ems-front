@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { inject, onMounted, onUnmounted } from 'vue'
+import { inject } from 'vue'
 import Navbar from '@/components/Navbar.vue';
 import MobileNavbar from './MobileNavbar.vue';
 import Notification from './Notification.vue';

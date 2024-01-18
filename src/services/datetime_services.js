@@ -6,15 +6,15 @@ export const dateFormat = (date) => {
 };
 
 export const getCurrentWeek = () => {
-  return moment().isoWeek();
+  return 1;
 };
 
 export const getCurrentYear = () => {
   return moment().year();
 };
 
-export const getCountOfWeeksInYear = () => {
-  return moment().isoWeeksInYear();
+export const getCountOfWeeksInYear = (year) => {
+  return moment({ day: 1, month: 1, year: year }).isoWeeksInYear();
 };
 
 export const dateFormatTimeTable = (date) => {

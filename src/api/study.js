@@ -1,13 +1,16 @@
 import { axios } from "@/api/interceptors";
 
-export const getTimeTableAPI = (week, year) => {
+export const getTimeTableAPI = (week, year, teacher_id) => {
+  let params = {};
+  params.week = week;
+  params.year = year;
+  if (teacher_id) {
+    params.teacher_id = teacher_id;
+  }
   return axios({
     method: "GET",
     url: "study/timetable/",
-    params: {
-      week: week,
-      year: year,
-    },
+    params: params,
   });
 };
 
@@ -117,10 +120,12 @@ export const getTrimesterAPI = () => {
   });
 };
 
-export const getTeacherAPI = (page, name = null, id = null) => {
+export const getTeacherAPI = (page = null, name = null, id = null) => {
   let params = {};
   let teacher_id = "";
-  params.page = page;
+  if (page) {
+    params.page = page;
+  }
   if (name) {
     params.name = name;
   }
@@ -131,5 +136,135 @@ export const getTeacherAPI = (page, name = null, id = null) => {
     method: "GET",
     url: `user/teacher/${teacher_id}`,
     params: params,
+  });
+};
+
+export const getCertificatesAPI = (page) => {
+  let params = {};
+  if (page) {
+    params.page = page;
+  }
+  return axios({
+    method: "GET",
+    url: `certificate/`,
+    params: params,
+  });
+};
+
+export const getCertificatesTypeAPI = () => {
+  return axios({
+    method: "GET",
+    url: `certificate/type/`,
+  });
+};
+
+export const createCertificateAPI = (type_id, count) => {
+  return axios({
+    method: "POST",
+    url: `certificate/`,
+    data: {
+      type_id: type_id,
+      count: count,
+      status_write: "cr",
+    },
+  });
+};
+
+export const updateCertificateAPI = (id) => {
+  return axios({
+    method: "PATCH",
+    url: `certificate/${id}/`,
+    data: {
+      status_write: "ca",
+    },
+  });
+};
+
+export const getStudyGroupAPI = (name) => {
+  let params = {};
+  if (name) {
+    params.name = name;
+  }
+  return axios({
+    method: "GET",
+    url: `study/studygroup/`,
+    params: params,
+  });
+};
+
+export const getAdvertisementAPI = (id = null, page = null) => {
+  let adv_id = "";
+  let params = {};
+  if (page) {
+    params.page = page;
+  }
+  if (id) {
+    adv_id = id;
+  }
+  return axios({
+    method: "GET",
+    url: `advertisement/${adv_id}`,
+    params: params,
+  });
+};
+
+export const createAdvertisementAPI = (data) => {
+  return axios({
+    method: "POST",
+    url: `advertisement/`,
+    data: data,
+  });
+};
+
+export const deleteAdvertisementFileAPI = (id) => {
+  return axios({
+    method: "DELETE",
+    url: `advertisement/files/${id}`,
+  });
+};
+
+export const updateAdvertisementAPI = (id, data) => {
+  return axios({
+    method: "PUT",
+    url: `advertisement/${id}/`,
+    data: data,
+  });
+};
+
+export const deleteAdvertisementAPI = (id) => {
+  return axios({
+    method: "DELETE",
+    url: `advertisement/${id}/`,
+  });
+};
+
+export const getContactAPI = () => {
+  let params = { own: true };
+  return axios({
+    method: "GET",
+    url: `user/contacts/`,
+    params: params,
+  });
+};
+
+export const getContactTypeAPI = (id = null, page = null) => {
+  return axios({
+    method: "GET",
+    url: `user/contacts/type/`,
+  });
+};
+
+export const updateContactAPI = (id, data) => {
+  return axios({
+    method: "PATCH",
+    url: `user/contacts/${id}/`,
+    data: data,
+  });
+};
+
+export const deleteContactAPI = (id) => {
+  return axios({
+    method: "DELETE",
+    url: `user/contacts/${id}/`,
   });
 };

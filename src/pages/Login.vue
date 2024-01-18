@@ -5,8 +5,8 @@
     <Transition>
         <reset-password v-if="is_reset_password_modal" @close="is_reset_password_modal = false"></reset-password>
     </Transition>
-    <div class="container h-100">
-        <div class="row justify-content-center align-items-center h-100 mx-1">
+    <div class="container login-container">
+        <div class="row justify-content-center mx-1">
             <div class="col-lg-6 col-md-8 col-12 base-card login">
                 <h4 class="login-header">Вход</h4>
                 <div class="login-username">
@@ -18,14 +18,14 @@
                         class="form__input">
                 </div>
                 <div class="login-btn text-center">
-                    <input type="submit" @click="login" value="Войти" class="form__btn w-75">
+                    <input type="submit" @click="login" value="Войти" class="form__btn w-100">
                 </div>
                 <div>
                     Забыли <span class="reset-link" @click="is_reset_username_modal = true">имя пользователя</span> или
                     <span class="reset-link" @click="is_reset_password_modal = true">пароль</span>?
                 </div>
                 <div v-if="errors.length" class="errors">
-                    <div class="error" v-for="error in errors" :key="error">
+                    <div class="message-error" v-for="error in errors" :key="error">
                         * {{ error }}
                     </div>
                 </div>
@@ -40,7 +40,7 @@ import { useRouter, useRoute } from 'vue-router'
 import ResetPassword from '@/components/ResetPassword.vue';
 import ResetUsername from '@/components/ResetUsername.vue';
 
-const $store = inject('$userStore')
+const $userStore = inject('$userStore')
 
 const router = useRouter()
 const route = useRoute()
@@ -81,12 +81,12 @@ const login = async () => {
             const data = response.data
             localStorage.setItem('Token', data.token)
             if (data.user_profiles.students.length === 1 && !data.user_profiles.teacher) {
-                $store.user = data.user_profiles.students[0]
+                $userStore.user = data.user_profiles.students[0]
                 localStorage.setItem('Student', data.user_profiles.students[0].id)
                 localStorage.setItem('Role', 'student')
             }
             else if (data.user_profiles.teacher && !data.user_profiles.students.length) {
-                $store.user = data.user_profiles.teacher
+                $userStore.user = data.user_profiles.teacher
                 localStorage.setItem('Role', 'teacher')
                 base_redirect_name = 'teacher_timetable'
             }
@@ -117,3 +117,13 @@ const login = async () => {
     }
 }
 </script>
+<style scoped lang="scss">
+.login-btn {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.login-container{
+    margin-top: 200px;
+}
+</style>
