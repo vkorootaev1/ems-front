@@ -62,10 +62,12 @@ const $store = inject('$loadingStore')
   color: #fff;
 }
 
+.other-card,
+.profile-card,
 .base-card,
 .huge-card {
   padding: 10px 10px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  border: 2px solid #eeeeee;
   border-radius: 10px;
 }
 
@@ -85,7 +87,7 @@ const $store = inject('$loadingStore')
 
 .custom-modal-wrap {
   position: fixed;
-  z-index: 5;
+  z-index: 100;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.4);
@@ -167,7 +169,7 @@ const $store = inject('$loadingStore')
 
 .font-awesome-icon,
 i {
-  color: black;
+  color: #989898;
   transition: 0.2s;
   cursor: pointer;
 
@@ -187,6 +189,34 @@ i {
 .notifications-wrap {
   width: 100%;
   position: absolute;
+}
+
+.other-function,
+.profile-function {
+  padding: 15px;
+  border-radius: 20px;
+  background-color: $main-color;
+  color: white;
+  cursor: pointer;
+  margin: 10px 0;
+  text-align: center;
+}
+
+
+.student-score-fio,
+.student-fio,
+.student-attendance-fio {
+  font-size: 1.2rem;
+  padding: 10px;
+  border-radius: 20px;
+  border: 2px solid #eeeeee;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.student-score-fio {
+  justify-content: center;
 }
 </style>
 

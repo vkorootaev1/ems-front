@@ -22,13 +22,14 @@
                 </router-link>
             </div>
             <div class="col-3 custom-navbar-content" v-if="$userStore.isTeacher()">
-                <router-link class="link" active-class="link-active" :to="{ name: 'student_timetable' }">
+                <router-link class="link" active-class="link-active" :to="{ name: 'teacher_attendance' }">
                     <font-awesome-icon icon="table" class="font-icon" />
                     <p>Посещаемость</p>
                 </router-link>
             </div>
             <div class="col-2 custom-navbar-content">
-                <router-link class="link" active-class="link-active" :to="{ name: 'student_timetable' }">
+                <router-link class="link" active-class="link-active"
+                    :to="$userStore.isStudent() ? { name: 'student_other' } : { name: 'teacher_other' }">
                     <font-awesome-icon icon="box" class="font-icon" />
                     <p>Другое</p>
                 </router-link>

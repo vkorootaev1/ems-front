@@ -1,9 +1,13 @@
 <template>
+    <Transition>
+        <create-contact v-if="is_create_contact_modal" @close="is_create_contact_modal = false"
+            :contacts_type="contacts_type" @createContact="_createContact"></create-contact>
+    </Transition>
     <div class="container">
         <div class="row justify-content-center pt-4">
             <div class="col-lg-12 col-12" style="max-width: 900px;">
                 <div class="create-contact-btn text-center">
-                    <input type="submit" @click="is_create_certificate_modal = true" value="Создать контакт"
+                    <input type="submit" @click="is_create_contact_modal = true" value="Создать контакт"
                         class="form__btn w-100">
                 </div>
                 <div class="contact huge-card" v-for="contact in contacts" :key="contact">
@@ -48,9 +52,10 @@
 </template>
 
 <script setup>
-import { getContactAPI, getContactTypeAPI, updateContactAPI, deleteContactAPI } from '@/api/study'
+import { getContactAPI, getContactTypeAPI, updateContactAPI, deleteContactAPI, createContactAPI } from '@/api/study'
 import { ref, inject, onMounted } from 'vue'
 import ContactTypeIcon from "@/components/ContactTypeIcon.vue"
+import CreateContact from '@/components/CreateContact.vue';
 
 const $notificationStore = inject('$notificationStore')
 
@@ -58,12 +63,15 @@ const error_message_contact = 'Не удалось загрузить конта
 const error_message_contact_type = 'Не удалось загрузить контакты'
 const error_message_contact_update = 'Не удалось обновить контакт'
 const error_message_contact_delete = 'Не удалось удалить контакт'
+const error_message_contact_create = 'Не удалось создать контакт'
 
 const message_success_contact_update = 'Контакт успешно обновлен'
 const message_success_contact_delete = 'Контакт успешно удален'
+const message_success_contact_create = 'Контакт успешно создан'
 
 let contacts = ref([])
 let contacts_type = ref([])
+let is_create_contact_modal = ref(false)
 
 onMounted(() => {
     getContactType()
@@ -92,11 +100,8 @@ const getContactType = async () => {
 
 const updateContact = async (contact) => {
     try {
-        let data = {
-            contact_ref: contact.contact_ref,
-            type_id: contact.type.id
-        }
-        const response = await updateContactAPI(contact.id, data)
+        const data = createUpdateContactData(contact.type, contact.contact_ref)
+        const response = await updateContactAPI(data, contact.id)
         $notificationStore.addSuccess(message_success_contact_update)
     }
     catch {
@@ -106,13 +111,33 @@ const updateContact = async (contact) => {
 
 const deleteContact = async (id) => {
     try {
-        const response = await deleteContactAPI(id)
+        await deleteContactAPI(id)
         contacts.value = contacts.value.filter((obj) => obj.id !== id)
         $notificationStore.addSuccess(message_success_contact_delete)
     }
     catch {
         $notificationStore.addError(error_message_contact_delete)
     }
+}
+
+const _createContact = async (contact_type, contact_ref) => {
+    try {
+        const data = createUpdateContactData(contact_type, contact_ref)
+        const response = await createContactAPI(data)
+        contacts.value.unshift(response.data)
+        $notificationStore.addSuccess(message_success_contact_create)
+    }
+    catch {
+        $notificationStore.addError(error_message_contact_create)
+    }
+}
+
+const createUpdateContactData = (contact_type, contact_ref) => {
+    let data = {
+        type_id: contact_type.id,
+        contact_ref: contact_ref
+    }
+    return data
 }
 </script>
 <style lang="scss" scoped>

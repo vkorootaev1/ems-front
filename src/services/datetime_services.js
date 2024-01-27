@@ -1,12 +1,24 @@
 import moment from "moment";
 import "moment/locale/ru";
+import { START_PAIRS } from '@/constants'
 
 export const dateFormat = (date) => {
   return moment(date).format("DD.MM.YYYY");
 };
 
+export const compareWithNowTimeTable = (date, index_pair) => {
+  let _date = moment(`${date} ${START_PAIRS[index_pair]}`, 'YYYY-MM-DD k:mm')
+  let _now = moment().utcOffset("+08:00")
+  if (_now > _date) {
+    console.log('123')
+    return true
+  }
+  console.log('456')
+  return false
+}
+
 export const getCurrentWeek = () => {
-  return 1;
+  return moment().isoWeek();
 };
 
 export const getCurrentYear = () => {

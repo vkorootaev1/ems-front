@@ -11,12 +11,16 @@ export const useUserStore = defineStore("user", () => {
 
   const user = ref(null);
 
+  const error_message_profile = 'Не удалось загрузить текущий профиль'
+  const success_message_logout = 'Вы вышли из профиля'
+  const succes_message_logout_all = 'Вы вышли из всех профилей'
+
   const getCurrentUser = async () => {
     try {
       const response = await currentUserAPI();
       user.value = response.data;
     } catch (e) {
-      notificationStore.addError("Не удалось загрузить текущий профиль");
+      notificationStore.addError(error_message_profile);
     }
   };
 
@@ -32,6 +36,7 @@ export const useUserStore = defineStore("user", () => {
       console.log(e);
     }
     clearAuth();
+    notificationStore.addSuccess(success_message_logout)
     router.push({ name: "login" });
   };
 
@@ -43,6 +48,7 @@ export const useUserStore = defineStore("user", () => {
       console.log(e);
     }
     clearAuth();
+    notificationStore.addSuccess(succes_message_logout_all)
     router.push({ name: "login" });
   };
 
@@ -72,9 +78,8 @@ export const useUserStore = defineStore("user", () => {
   const userShow = () => {
     if (user.value) {
       if (isStudent()) {
-        return `${reductionFIO(user.value.user)} (${
-          user.value.study_group.name
-        })`;
+        return `${reductionFIO(user.value.user)} (${user.value.study_group.name
+          })`;
       } else if (isTeacher()) {
         return `${reductionFIO(user.value.user)} (преподаватель)`;
       } else {

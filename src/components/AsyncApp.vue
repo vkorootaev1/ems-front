@@ -36,7 +36,7 @@ export default {
         }
 
         const isHideForAuth = () => {
-            if (route.meta.hideForAuth) {
+            if (route.meta.hideForAuth || route.name === 'not_found') {
                 return false
             }
             return true

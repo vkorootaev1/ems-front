@@ -5,7 +5,7 @@
     <Transition>
         <reset-password v-if="is_reset_password_modal" @close="is_reset_password_modal = false"></reset-password>
     </Transition>
-    <div class="container login-container">
+    <div class="container">
         <div class="row justify-content-center mx-1">
             <div class="col-lg-6 col-md-8 col-12 base-card login">
                 <h4 class="login-header">Вход</h4>
@@ -123,7 +123,7 @@ const login = async () => {
     margin-bottom: 0.5em;
 }
 
-.login-container{
+.login {
     margin-top: 200px;
 }
 </style>

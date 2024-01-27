@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
-import { useNotificationStore } from "./stores/NotificationsStore";
 import Login from "@/pages/Login";
 import TimeTable from "@/pages/TimeTable";
 import UserProfiles from "@/pages/UserProfiles";
@@ -18,11 +17,22 @@ import Certificate from "@/pages/Certificate";
 import AdvertisementCreateUpdate from "@/pages/AdvertisementCreateUpdate";
 import Advertisement from "@/pages/Advertisement";
 import Contact from "@/pages/Contact";
+import NotFound from "@/pages/NotFound"
+import Other from "@/pages/Other"
+import AttendanceStudent from "@/pages/AttendanceStudent"
+import UpdateAttendanceTeacher from "@/pages/UpdateAttendanceTeacher"
 
 export const router = createRouter({
   history: createWebHistory(),
   mode: "history",
   routes: [
+    {
+      path: "",
+      name: "home",
+      meta: {
+        requiresAuth: true,
+      },
+    },
     {
       path: "/login",
       name: "login",
@@ -50,6 +60,7 @@ export const router = createRouter({
     {
       path: "/student",
       name: "student",
+      redirect: { name: 'student_timetable' },
       meta: {
         requiresAuth: true,
         requiresStudent: true,
@@ -85,17 +96,13 @@ export const router = createRouter({
         {
           path: "other",
           name: "student_other",
+          redirect: { name: "student_other_functions" },
           children: [
             {
               path: "teachers",
-              name: "teachers",
+              name: "student_teachers",
               redirect: { name: "teachers_info" },
               children: [
-                {
-                  path: "",
-                  name: "teachers_info",
-                  component: Teachers,
-                },
                 {
                   path: ":teacher_id/info",
                   name: "teacher_info",
@@ -106,6 +113,11 @@ export const router = createRouter({
                   name: "teacher_timetable_info",
                   component: TimeTable,
                 },
+                {
+                  path: "",
+                  name: "teachers_info",
+                  component: Teachers,
+                },
               ],
             },
             {
@@ -115,21 +127,27 @@ export const router = createRouter({
             },
             {
               path: "advertisement",
-              name: "advertisement_student",
+              name: "student_advertisements",
               component: Advertisement,
             },
+            {
+              path: "attendance",
+              name: "student_attendance",
+              component: AttendanceStudent
+            },
+            {
+              path: "",
+              name: "student_other_functions",
+              component: Other
+            }
           ],
         },
       ],
     },
     {
-      path: "/attendance",
-      name: "student_attendance",
-      component: AttendanceTeacher,
-    },
-    {
       path: "/teacher",
       name: "teacher",
+      redirect: { name: 'teacher_timetable' },
       meta: {
         requiresAuth: true,
         requiresTeacher: true,
@@ -148,19 +166,33 @@ export const router = createRouter({
         {
           path: "attendance",
           name: "teacher_attendance",
-          component: AttendanceTeacher,
+          redirect: { name: 'teacher_attendance_pairs' },
+          children: [
+            {
+              path: "",
+              name: "teacher_attendance_pairs",
+              component: AttendanceTeacher,
+            },
+            {
+              path: ":pair_id/update",
+              name: "teacher_attendance_update",
+              component: UpdateAttendanceTeacher,
+            }
+          ]
         },
         {
           path: "other",
           name: "teacher_other",
+          redirect: { name: 'teacher_other_functions' },
           children: [
             {
               path: "advertisement",
-              name: "advertisement",
+              name: "teacher_advertisements",
+              redirect: { name: 'teacher_advertisement' },
               children: [
                 {
                   path: "",
-                  name: "advertisement_teacher",
+                  name: "teacher_advertisement",
                   component: Advertisement,
                 },
                 {
@@ -180,6 +212,11 @@ export const router = createRouter({
               name: "teacher_certificate",
               component: Certificate,
             },
+            {
+              path: "",
+              name: "teacher_other_functions",
+              component: Other
+            }
           ],
         },
       ],
@@ -212,6 +249,11 @@ export const router = createRouter({
         },
       ],
     },
+    {
+      path: "/:pathMatch(.*)*",
+      name: "not_found",
+      component: NotFound,
+    },
   ],
 });
 
@@ -225,7 +267,16 @@ router.beforeEach((to, from, next) => {
       next({ name: "login", query: { redirect: to.name } });
     } else if (!role && to.name !== "user_profiles") {
       next({ name: "user_profiles", query: { redirect: to.name } });
-    } else if (
+    }
+    else if (to.name === 'home') {
+      if (role === 'teacher') {
+        next({ name: 'teacher_timetable' })
+      }
+      else {
+        next({ name: 'student_timetable' })
+      }
+    }
+    else if (
       to.matched.some((record) => record.meta.requiresTeacher) &&
       role !== "teacher"
     ) {

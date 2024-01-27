@@ -23,6 +23,7 @@
                                 {{ files.length }}
                                 <span v-if="files.length === 1">файл</span>
                                 <span v-else>файла(ов)</span>
+                                <span> к загрузке</span>
                             </template>
                         </v-file-input>
                     </div>
@@ -96,7 +97,7 @@ const route = useRoute()
 
 const editor_init = {
     selector: 'textarea',
-    height: 700,
+    height: 600,
     resize: false,
     skin: false,
     content_css: false,
@@ -128,8 +129,9 @@ const message_success_update_adv = 'Объявление успешно обно
 const message_success_delete_file = 'Файл успешно удален'
 const message_success_delete_adv = 'Объявление успешно удалено'
 
-const permitted_extension = ['pdf', 'doc', 'docx', 'jpg', 'png', 'xlsx', 'xls', 'pptx', 'txt', 'csv', 'md']
+const permitted_extension = ['pdf', 'doc', 'docx', 'jpg', 'png', 'xlsx', 'xls', 'pptx', 'txt', 'csv', 'md', 'ppt']
 let is_errors = false
+let advertisement_id = null
 
 let editor_body = ref("")
 let study_groups = ref([])
@@ -150,7 +152,8 @@ onMounted(() => {
 const getStudyGroup = async () => {
     if (search_study_group.value) {
         try {
-            const response = await getStudyGroupAPI(search_study_group.value)
+            const params = getStudyGroupParams()
+            const response = await getStudyGroupAPI(params)
             study_groups.value = response.data
         }
         catch {
@@ -161,8 +164,8 @@ const getStudyGroup = async () => {
 
 const getAdvertisement = async () => {
     try {
-        const adv_id = route.params.adv_id
-        const response = await getAdvertisementAPI(adv_id)
+        const params = {}
+        const response = await getAdvertisementAPI(params, route.params.adv_id)
         setAdvertisementData(response.data)
     }
     catch {
@@ -176,7 +179,6 @@ const createAdvertisement = async () => {
             const form_data = createFormData()
             const response = await createAdvertisementAPI(form_data)
             $notificationStore.addSuccess(message_success_create_adv)
-            clearFiles()
             setAdvertisementData(response.data)
             router.push({ name: 'advertisement_update', params: { adv_id: response.data.id } })
         }
@@ -200,9 +202,8 @@ const deleteAdvertisementFile = async (file) => {
 const updateAdvertisement = async () => {
     if (validate()) {
         try {
-            const adv_id = route.params.adv_id
             const form_data = createFormData()
-            const response = await updateAdvertisementAPI(adv_id, form_data)
+            const response = await updateAdvertisementAPI(form_data, route.params.adv_id)
             clearFiles()
             setAdvertisementData(response.data)
             $notificationStore.addSuccess(message_success_update_adv)
@@ -215,10 +216,9 @@ const updateAdvertisement = async () => {
 
 const deleteAdvertisement = async () => {
     try {
-        const adv_id = route.params.adv_id
-        await deleteAdvertisementAPI(adv_id)
+        await deleteAdvertisementAPI(route.params.adv_id)
         $notificationStore.addSuccess(message_success_delete_adv)
-        router.push({ name: 'teacher_timetable' })
+        router.push({ name: 'teacher_advertisement' })
     }
     catch {
         $notificationStore.addError(message_error_delete_adv)
@@ -246,6 +246,7 @@ const createFormData = () => {
 }
 
 const setAdvertisementData = (data) => {
+    clearFiles()
     editor_body.value = data.body
     selected_study_groups.value = data.groups
     uploaded_files.value = data.files
@@ -323,6 +324,10 @@ const validateFiles = () => {
     })
 }
 
+const getStudyGroupParams = () => {
+    let params = { name: search_study_group.value }
+    return params
+}
 </script>
 
 <style lang="scss" scoped>
@@ -371,11 +376,5 @@ const validateFiles = () => {
 .btn-delete,
 .btn-save {
     margin-top: 5px;
-}
-
-@media (max-width: 767px) {
-    .advertisement-btns {
-        position: inherit;
-    }
 }
 </style>

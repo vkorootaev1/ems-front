@@ -1,5 +1,5 @@
 <template>
-    <div class="container mt-3">
+    <div class="container mt-0">
         <div class="row justify-content-center">
             <div class="col-lg-6 col-md-8 col-12">
                 <div class="teacher" v-if="teacher">
@@ -59,21 +59,20 @@ const error_message_teacher = 'Не удалось загрузить препо
 let teacher = ref(null)
 
 
-onMounted(async () => {
-    await getTeacher()
+onMounted(() => {
+    getTeacher()
 })
 
-const getTeacher = async (filtered = false) => {
+const getTeacher = async () => {
     try {
-
-        const response = await getTeacherAPI(null, null, route.params.teacher_id)
+        const params = {}
+        const response = await getTeacherAPI(params, route.params.teacher_id)
         teacher.value = response.data
     }
     catch {
         $notificationStore.addError(error_message_teacher)
     }
 }
-
 </script>
 <style lang="scss" scoped>
 .teacher {

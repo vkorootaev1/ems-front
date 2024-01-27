@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="row justify-content-center pt-4" style="max-width: 1000px;">
+        <div class="row justify-content-center pt-4">
             <div class="col col-lg-8 col-md-10 col-12">
                 <switcher-score></switcher-score>
                 <div class="row my-2">
@@ -84,7 +84,8 @@ onMounted(async () => {
 
 const getControlMeasureScore = async () => {
     try {
-        const response = await getControlMeasureScoreAPI(trimester.value, null, null)
+        const params = getControlMeasureScoreParams()
+        const response = await getControlMeasureScoreAPI(params)
         scores.value = formatControlMeasureScore(response.data)
         router.replace({ name: route.name, query: { ...route.query, number: trimester.value } })
     }
@@ -117,6 +118,10 @@ const sumScores = (scores) => {
     return result
 }
 
+const getControlMeasureScoreParams = () => {
+    let params = { trimester: trimester.value }
+    return params
+}
 </script>
 
 <style lang="scss" scoped>

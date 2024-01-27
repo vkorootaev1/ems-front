@@ -55,14 +55,15 @@ let page = ref(1)
 let hasNextPage = ref(false)
 let is_create_certificate_modal = ref(false)
 
-onMounted(async () => {
-    await getCertificate()
+onMounted(() => {
+    getCertificate()
 })
 
 const getCertificate = async () => {
     try {
         hasNextPage.value = false
-        const response = await getCertificatesAPI(page.value)
+        const params = getCertificateParams()
+        const response = await getCertificatesAPI(params)
         certificates.value.push(...response.data.results)
         router.replace({ name: route.name, query: { ...route.query, page: page.value } })
         if (response.data.next) {
@@ -88,13 +89,24 @@ const updateCertificate = async (certificate_id) => {
 
 const createNewCertificate = async (certificate_type, certificate_count) => {
     try {
-        const response = await createCertificateAPI(certificate_type.id, certificate_count.count)
+        const data = createCertificateData(certificate_type, certificate_count)
+        const response = await createCertificateAPI(data)
         certificates.value.unshift(response.data)
         $notificationStore.addSuccess(success_message_certificate_create)
     }
     catch {
         $notificationStore.addError(error_message_certificate_create)
     }
+}
+
+const getCertificateParams = () => {
+    let params = { page: page.value }
+    return params
+}
+
+const createCertificateData = (certificate_type, certificate_count) => {
+    let data = { type_id: certificate_type.id, count: certificate_count.count, status_write: "cr" }
+    return data
 }
 
 </script>

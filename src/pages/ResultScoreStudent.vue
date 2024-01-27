@@ -1,11 +1,11 @@
 <template>
     <div class="container">
-        <div class="row justify-content-center pt-4" style="max-width: 1000px;">
-            <div class="col-12">
+        <div class="row justify-content-center pt-4">
+            <div class="col-xl-10 col-12">
                 <switcher-score></switcher-score>
-                <div class="mb-4" v-for="item in scores" :key="item">
+                <div class="row mb-4 mx-0" v-for="item in scores" :key="item">
                     <h4>{{ item.trimester }} триместр</h4>
-                    <div class="result-scores huge-card my-2" v-for="item in item.scores" :key="item">
+                    <div class="result-scores huge-card mb-2" v-for="item in item.scores" :key="item">
                         <div class="row">
                             <div class="col-8 col-lg-5 score-info">
                                 {{ item.course.course.name }}
@@ -30,7 +30,7 @@
                                 {{ reductionFIO(item.teacher.user) }}
                             </div>
                             <div class="score-info col col-lg-2 d-none d-md-flex">
-                                {{ dateTimeFormat(item.date_upd) }}
+                                {{ dateFormat(item.date_upd) }}
                             </div>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
 import { getResultScoreAPI } from '@/api/study'
 import { ref, onMounted, inject } from 'vue';
 import { formatResultScore } from '@/services/study_services'
-import { dateTimeFormat } from '@/services/datetime_services'
+import { dateTimeFormat, dateFormat } from '@/services/datetime_services'
 import { reductionFIO } from '@/services/user_services';
 import SwitcherScore from '@/components/SwitcherScore.vue'
 
@@ -54,8 +54,8 @@ const error_message_result_scores = 'Не удалось загрузить ит
 
 let scores = ref([])
 
-onMounted(async () => {
-    await getResultScore()
+onMounted(() => {
+    getResultScore()
 })
 
 const getResultScore = async () => {

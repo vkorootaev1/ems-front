@@ -26,23 +26,27 @@
         </div>
         <router-link :to="{ name: 'teacher_score' }" v-if="$userStore.isTeacher()"
             active-class="link-active">Оценки</router-link>
-        <router-link :to="{ name: 'result_score' }" v-if="$userStore.isTeacher()"
+        <router-link :to="{ name: 'teacher_attendance' }" v-if="$userStore.isTeacher()"
             active-class="link-active">Посещаемость</router-link>
         <div class="custom-dropdown">
-            <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute('student_other') }">Другое
+            <button class="custom-dropbtn"
+                :class="{ 'link-active-dropdown': IsParrentRoute(['student_other', 'teacher_other', 'teacher_advertisements', 'student_teachers']) }">Другое
                 <font-awesome-icon icon="caret-down" />
             </button>
             <div class="custom-dropdown-content">
-                <router-link :to="{ name: 'student_timetable' }" active-class="link-active">Справки</router-link>
-                <router-link :to="{ name: 'student_timetable' }" active-class="link-active"
+                <router-link
+                    :to="$userStore.isStudent() ? { name: 'student_certificate' } : { name: 'teacher_certificate' }"
+                    active-class="link-active">Справки</router-link>
+                <router-link :to="{ name: 'student_attendance' }" active-class="link-active"
                     v-if="$userStore.isStudent()">Посещаемость</router-link>
                 <router-link :to="{ name: 'teachers_info' }" active-class="link-active"
                     v-if="$userStore.isStudent()">Преподаватели</router-link>
-                <router-link :to="{ name: 'student_timetable' }" active-class="link-active">Объявления</router-link>
+                <router-link active-class="link-active"
+                    :to="$userStore.isStudent() ? { name: 'student_advertisements' } : { name: 'teacher_advertisements' }">Объявления</router-link>
             </div>
         </div>
         <div class="custom-dropdown">
-            <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute('profile') }">Профиль
+            <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute(['profile']) }">Профиль
                 <font-awesome-icon icon="caret-down" />
             </button>
             <div class="custom-dropdown-content">
@@ -53,7 +57,8 @@
                 <a @click="is_change_password_modal = true">Изменить пароль</a>
                 <a @click="is_change_username_modal = true">Изменить имя пользователя</a>
                 <a @click="is_change_email_modal = true">Изменить email</a>
-                <router-link :to="{ name: 'contact' }" active-class="link-active">Сменить контакты</router-link>
+                <router-link v-if="$userStore.isTeacher()" :to="{ name: 'contact' }" active-class="link-active">Сменить
+                    контакты</router-link>
                 <a @click="$userStore.logout()">Выйти</a>
                 <a @click="$userStore.logoutAll()">Выйти из всех устройств</a>
             </div>
@@ -78,7 +83,7 @@ let is_change_password_modal = ref(false)
 let is_change_email_modal = ref(false)
 
 
-const IsParrentRoute = (parent_route_name) => {
+const IsParrentRoute = (parent_route_names) => {
     let is_found = null;
     router.getRoutes().forEach((r) => {
         (r.children || []).forEach((ch) => {
@@ -88,7 +93,8 @@ const IsParrentRoute = (parent_route_name) => {
         });
     });
     if (is_found) {
-        return is_found.name === parent_route_name ? true : false
+        console.log(is_found)
+        return parent_route_names.includes(is_found.name) ? true : false
     }
 }
 

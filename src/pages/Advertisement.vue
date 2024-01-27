@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row justify-content-center pt-4">
             <div class="col-lg-8 col-md-10 col-12" style="max-width: 900px;">
-                <div class="create-advertisement-btn text-center">
+                <div class="create-advertisement-btn text-center" v-if="$userStore.isTeacher()">
                     <input type="submit" @click="router.push({ name: 'advertisement_create' })" value="Создать объявление"
                         class="form__btn w-100">
                 </div>
@@ -59,7 +59,8 @@ onMounted(() => {
 const getAdvertisement = async () => {
     try {
         hasNextPage.value = false
-        const response = await getAdvertisementAPI(null, page.value)
+        const params = getAdvertisementParams()
+        const response = await getAdvertisementAPI(params)
         advertisements.value.push(...response.data.results)
         router.replace({ name: route.name, query: { ...route.query, page: page.value } })
         if (response.data.next) {
@@ -69,6 +70,11 @@ const getAdvertisement = async () => {
     catch {
         $notificationStore.addError(error_message_adv)
     }
+}
+
+const getAdvertisementParams = () => {
+    let params = { page: page.value }
+    return params
 }
 </script>
 

@@ -1,7 +1,10 @@
 import {
   getDaysByWeekYear,
   dateFormatTimeTable,
+  getYear
 } from "@/services/datetime_services";
+import { TRIMESTER } from '@/constants'
+
 const _ = require("lodash");
 
 export const formatTimeTable = (timetable, week, year) => {
@@ -16,7 +19,7 @@ export const formatTimeTable = (timetable, week, year) => {
     let pairs_by_date = [];
     while (!(date == days_of_week[cnt_day])) {
       formated_timetable.push({
-        date: dateFormatTimeTable(days_of_week[cnt_day]),
+        date: days_of_week[cnt_day],
         pairs: null,
       });
       cnt_day++;
@@ -35,13 +38,13 @@ export const formatTimeTable = (timetable, week, year) => {
       cnt_pair++;
     }
     formated_timetable.push({
-      date: dateFormatTimeTable(date),
+      date: date,
       pairs: pairs_by_date,
     });
   }
   for (let i = cnt_day; i < 7; i++) {
     formated_timetable.push({
-      date: dateFormatTimeTable(days_of_week[i]),
+      date: days_of_week[i],
       pairs: null,
     });
   }
@@ -104,3 +107,17 @@ export const reduceTypeOfPair = (type) => {
   };
   return reduce[type];
 };
+
+export const formatTrimester = (trimester) => {
+  return `${TRIMESTER[trimester.trimester]} (${getYear(trimester.date_start)})`
+}
+
+export const formatAttendanceTeacher = (attendance) => {
+  attendance.forEach(item => { item.status = item.status === null ? item.status = false : item.status })
+  let group_attendance = Object.groupBy(attendance, ({ student }) => student.study_group.id);
+  let formated_attendance = [];
+  for (const [study_group, attendance] of Object.entries(group_attendance)) {
+    formated_attendance.push({ study_group: attendance[0].student.study_group, attendance: attendance });
+  }
+  return formated_attendance;
+}

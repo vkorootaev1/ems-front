@@ -24,6 +24,7 @@ import {
   faCircle,
   faEnvelope,
   faFileArrowDown,
+  faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -48,7 +49,8 @@ library.add(
   faWhatsapp,
   faVk,
   faEnvelope,
-  faFileArrowDown
+  faFileArrowDown,
+  faCheck
 );
 
 loadFonts();

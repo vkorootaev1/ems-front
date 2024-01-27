@@ -1,12 +1,12 @@
 <template>
-    <div class="container">
-        <div class="row justify-content-center" style="max-width: 1000px;">
-            <div class="col col-lg-10 col-md-10 order-md-2">
+    <div class="container mt-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-12">
                 <div class="row align-items-end mb-2">
-                    <div class="col-lg-6 col-12 order-lg-2 order-lg-2 my-2">
-                        <v-select class="mt-4" label="Триместр" v-model="selected_trimester" :items="trimesters"
-                            variant="outlined" rounded="lg" return-object item-value="id"
-                            @update:modelValue="getStudyGroupsCoursesByTrimester" hide-details="true">
+                    <div class="col-xxl-6 col-12 my-2">
+                        <v-select label="Триместр" v-model="selected_trimester" :items="trimesters" variant="outlined"
+                            rounded="lg" return-object item-value="id" @update:modelValue="getStudyGroupsCoursesByTrimester"
+                            hide-details="true">
                             <template v-slot:item="{ item: { raw }, props: { onClick } }">
                                 <v-list-item :class="{ 'v-list-item--active': selected_trimester.id === raw.id }"
                                     @click="onClick">{{ formatTrimester(raw) }} <span v-if="raw.current">&nbsp;
@@ -20,10 +20,11 @@
                             </template>
                         </v-select>
                     </div>
-                    <div class="col-lg-6 col-12 order-lg-1 my-2">
+                    <div class="col-xxl-6 col-12 my-2">
                         <v-text-field label="Курс и/или группа" v-model="search_field_groups_courses" rounded="lg"
                             variant="outlined" hide-details="true" type="text"
-                            v-debounce:400="getStudyGroupsCoursesByGroupCourseName"></v-text-field>
+                            v-debounce:400="getStudyGroupsCoursesByGroupCourseName" clearable
+                            @click:clear="getStudyGroupsCoursesByTrimester"></v-text-field>
                     </div>
                 </div>
                 <h4>Преподаваемые курсы</h4>
@@ -64,7 +65,7 @@
                                 <div class="student mx-2" v-for="student in control_measure_scores" :key="student">
                                     <div class="score" v-for="score in student.scores" :key="score">
                                         <div v-if="score.control_measure.id === selected_control_measure.id">
-                                            <div class="row align-middle my-5 align-items-center">
+                                            <div class="row align-middle mb-2 align-items-center">
                                                 <div class="col-7 student-fio">
                                                     <span>{{ reductionFIO(student.user) }}</span>
                                                 </div>
@@ -80,7 +81,7 @@
                             </div>
                             <div v-else>
                                 <div class="student mx-2">
-                                    <div class="row align-middle mb-5">
+                                    <div class="row align-middle mb-2">
                                         <div class="col-7">
                                             <div class="student-score-fio">
                                                 <span style="font-weight: 700;">Студент</span>
@@ -93,15 +94,15 @@
                                         </div>
                                     </div>
                                     <div class="score" v-for="item in result_scores" :key="item">
-                                        <div class="row align-middle mb-5">
+                                        <div class="row align-middle mb-2">
                                             <div class="col-7">
-                                                <div class="student-score-fio">
+                                                <div class="student-fio">
                                                     <span>{{ reductionFIO(item.student.user) }}</span>
                                                 </div>
                                             </div>
                                             <div class="col-5">
                                                 <div class="student-score-fio">
-                                                    <span
+                                                    <span v-if="item.score !== 'Не выставлено'"
                                                         :class="['Зачет', '5', '4', '3'].includes(item.score) ? 'student-score' : 'score-false'">{{
                                                             item.score
                                                         }}</span>
@@ -122,10 +123,8 @@
 <script setup>
 import { getStudyGroupsCoursesAPI, getTrimesterAPI, getControlMeasureScoreAPI, multipleUpdateControlMeasureScoreAPI, getResultScoreAPI, multipleUpdateResultScoreAPI } from '@/api/study'
 import { ref, onMounted, inject } from 'vue';
-import { formatScoreTeacher } from '@/services/study_services'
+import { formatScoreTeacher, formatTrimester } from '@/services/study_services'
 import { reductionFIO } from '@/services/user_services';
-import { TRIMESTER } from '@/constants'
-import { getYear } from '@/services/datetime_services'
 
 const $notificationStore = inject('$notificationStore')
 
@@ -134,7 +133,7 @@ const error_message_control_measure_scores = 'Не удалось загрузи
 const error_message_result_scores = 'Не удалось загрузить итоговые оценки студентов'
 const error_message_update_scores = 'Не удалось сохранить оценки'
 const error_message_trimesters = 'Не удалось загрузить триместры'
-const succes_message_update_scores = 'Оценки успешно обновлены'
+const success_message_update_scores = 'Оценки успешно обновлены'
 
 let search_field_groups_courses = ref('')
 let selected_trimester = ref({ id: 0, trimester: null, date_start: null, date_end: null })
@@ -155,8 +154,9 @@ onMounted(() => {
 const getStudyGroupsCoursesByTrimester = async () => {
     clearScores()
     try {
-        const response = await getStudyGroupsCoursesAPI(selected_trimester.value.id)
-        groups_courses.value = response.data
+        const params = getStudyGroupsCoursesByTrimesterParams()
+        const response = await getStudyGroupsCoursesAPI(params)
+        groups_courses.value = response.data.results
     }
     catch {
         $notificationStore.addError(error_message_course_study_group_teacher)
@@ -164,13 +164,16 @@ const getStudyGroupsCoursesByTrimester = async () => {
 }
 
 const getStudyGroupsCoursesByGroupCourseName = async () => {
-    clearScores()
-    try {
-        const response = await getStudyGroupsCoursesAPI(null, search_field_groups_courses.value)
-        groups_courses.value = response.data
-    }
-    catch {
-        $notificationStore.addError(error_message_course_study_group_teacher)
+    if (search_field_groups_courses.value) {
+        clearScores()
+        try {
+            const params = getStudyGroupsCoursesByGroupCourseNameParams()
+            const response = await getStudyGroupsCoursesAPI(params)
+            groups_courses.value = response.data.results
+        }
+        catch {
+            $notificationStore.addError(error_message_course_study_group_teacher)
+        }
     }
 }
 
@@ -195,8 +198,8 @@ const getScores = async (group_course) => {
 
 const getControlMeasureScore = async () => {
     try {
-        const response = await getControlMeasureScoreAPI(null, selected_study_group.value.id,
-            selected_studyplan_course.value.id)
+        const params = getScoreParams()
+        const response = await getControlMeasureScoreAPI(params)
         control_measure_scores.value = formatScoreTeacher(response.data)
         getControlMeasureList(control_measure_scores.value)
     }
@@ -207,8 +210,8 @@ const getControlMeasureScore = async () => {
 
 const getResultScore = async () => {
     try {
-        const response = await getResultScoreAPI(selected_study_group.value.id,
-            selected_studyplan_course.value.id)
+        const params = getScoreParams()
+        const response = await getResultScoreAPI(params)
         result_scores.value = response.data
     }
     catch {
@@ -218,9 +221,10 @@ const getResultScore = async () => {
 
 const multipleUpdateControlMeasureScores = async () => {
     try {
-        await multipleUpdateControlMeasureScoreAPI(createListControlMeasureScoresUpdated(),
-            selected_study_group.value.id, selected_studyplan_course.value.id)
-        $notificationStore.addSuccess(succes_message_update_scores)
+        const data = createListControlMeasureScoresUpdated()
+        const params = multipleUpdateControlMeasureScoresParams()
+        await multipleUpdateControlMeasureScoreAPI(data, params)
+        $notificationStore.addSuccess(success_message_update_scores)
     }
     catch {
         $notificationStore.addError(error_message_update_scores)
@@ -229,9 +233,10 @@ const multipleUpdateControlMeasureScores = async () => {
 
 const multipleUpdateResultScores = async () => {
     try {
-        const response = await multipleUpdateResultScoreAPI(selected_study_group.value.id, selected_studyplan_course.value.id)
+        const params = multipleUpdateResultScoresParams()
+        const response = await multipleUpdateResultScoreAPI(params)
         result_scores.value = response.data
-        $notificationStore.addSuccess(succes_message_update_scores)
+        $notificationStore.addSuccess(success_message_update_scores)
     }
     catch {
         $notificationStore.addError(error_message_update_scores)
@@ -295,28 +300,36 @@ const scoreHandler = (score) => {
     }
 }
 
-const formatTrimester = (trimester) => {
-    return `${TRIMESTER[trimester.trimester]} (${getYear(trimester.date_start)})`
+const getScoreParams = () => {
+    let params = {
+        study_group_id: selected_study_group.value.id,
+        studyplan_course_id: selected_studyplan_course.value.id
+    }
+    return params
+}
+
+const getStudyGroupsCoursesByTrimesterParams = () => {
+    let params = { trimester: selected_trimester.value.id }
+    return params
+}
+
+const getStudyGroupsCoursesByGroupCourseNameParams = () => {
+    let params = { name: search_field_groups_courses.value }
+    return params
+}
+
+const multipleUpdateControlMeasureScoresParams = () => {
+    let params = { study_group_id: selected_study_group.value.id, studyplan_course_id: selected_studyplan_course.value.id }
+    return params
+}
+
+const multipleUpdateResultScoresParams = () => {
+    let params = { study_group_id: selected_study_group.value.id, studyplan_course_id: selected_studyplan_course.value.id }
+    return params
 }
 </script>
 
 <style lang="scss" scoped>
-.student-score-fio,
-.student-fio {
-    display: flex;
-    font-size: 1.2rem;
-    padding: 10px;
-    border-radius: 20px;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    align-items: center;
-}
-
-.student-score-fio {
-    height: 100%;
-    overflow-wrap: break-word;
-    overflow: hidden;
-    justify-content: center;
-}
 
 .control-measure-info {
 
@@ -327,7 +340,7 @@ const formatTrimester = (trimester) => {
 }
 
 .course-group {
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    border: 2px solid #eeeeee;
     border-radius: 15px;
     padding: 10px;
 }

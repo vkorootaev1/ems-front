@@ -1,10 +1,10 @@
 <template>
-    <div class="container">
-        <div class="row justify-content-center pt-4">
+    <div class="container mt-3">
+        <div class="row justify-content-center">
             <div class="col-lg-6 col-md-8 col-12">
                 <v-text-field label="Имя преподавателя" v-model="search_field_teacher_name" rounded="lg" variant="outlined"
-                    hide-details="true" type="text" style="max-width: 500px;"
-                    v-debounce:800="_ => getTeacher(true)"></v-text-field>
+                    hide-details="true" type="text" style="max-width: 500px;" v-debounce:800="getTeacherByName" clearable
+                    @click:clear="clearSearchField"></v-text-field>
                 <div class="base-card teacher-card" v-for="teacher in teachers" :key="teacher"
                     @click="router.push({ name: 'teacher_info', params: { teacher_id: teacher.id } })">
                     <div>
@@ -47,18 +47,15 @@ let page = ref(1)
 let hasNextPage = ref(false)
 let search_field_teacher_name = ref('')
 
-onMounted(async () => {
-    await getTeacher()
+onMounted(() => {
+    getTeacher()
 })
 
-const getTeacher = async (filtered = false) => {
+const getTeacher = async () => {
     try {
-        if (filtered) {
-            teachers.value = []
-            page.value = 1
-        }
         hasNextPage.value = false
-        const response = await getTeacherAPI(page.value, search_field_teacher_name.value)
+        const params = getTeacherParams()
+        const response = await getTeacherAPI(params)
         teachers.value.push(...response.data.results)
         router.replace({ name: route.name, query: { ...route.query, page: page.value } })
         if (response.data.next) {
@@ -68,6 +65,43 @@ const getTeacher = async (filtered = false) => {
     catch {
         $notificationStore.addError(error_message_teachers)
     }
+}
+
+const getTeacherByName = async () => {
+    if (search_field_teacher_name.value) {
+        clean()
+        try {
+            const params = getTeacherParams()
+            const response = await getTeacherAPI(params)
+            teachers.value.push(...response.data.results)
+            router.replace({ name: route.name, query: { ...route.query, page: page.value } })
+            if (response.data.next) {
+                hasNextPage.value = true;
+            }
+        }
+        catch {
+            $notificationStore.addError(error_message_teachers)
+        }
+    }
+}
+
+const getTeacherParams = () => {
+    let params = { page: page.value }
+    if (search_field_teacher_name.value) {
+        params.name = search_field_teacher_name.value
+    }
+    return params
+}
+
+const clearSearchField = () => {
+    clean()
+    getTeacher()
+}
+
+const clean = () => {
+    teachers.value = []
+    page.value = 1
+    hasNextPage.value = false
 }
 
 </script>

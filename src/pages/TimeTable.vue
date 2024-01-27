@@ -6,9 +6,9 @@
             </div>
             <pagination :current_item="week" :last_item="count_of_weeks" @changeItem="changeWeek"
                 v-if="week && count_of_weeks"></pagination>
-            <div class="col-lg-6 col-md-8 col-12">
+            <div class="col-md-8 col-12">
                 <div class="day_pairs" v-for="item in timetable" :key="item">
-                    <h4>{{ item.date }}</h4>
+                    <h4>{{ dateFormatTimeTable(item.date) }}</h4>
                     <div v-if="item.pairs">
                         <div class="huge-card mb-2 d-flex" v-for="pair in item.pairs" :key="pair">
                             <div class="pair-time">
@@ -16,8 +16,10 @@
                                 <div>
                                     {{ START_PAIRS[pair.index_pair] }}
                                 </div>
-                                <div v-if="$userStore.user && $userStore.isTeacher() && pair.course">
-                                    <font-awesome-icon icon="table" class="font-awesome-icon" />
+                                <div
+                                    v-if="$userStore.user && $userStore.isTeacher() && pair.course && compareWithNowTimeTable(item.date, pair.index_pair)">
+                                    <font-awesome-icon icon="table" class="font-awesome-icon"
+                                        @click="router.push({ name: 'teacher_attendance_update', params: { pair_id: pair.id } })" />
                                     <font-awesome-icon icon="check" style="color:#008080; margin-left: 3px;"
                                         v-if="pair.is_attendance" />
                                 </div>
@@ -61,7 +63,7 @@ import { getTimeTableAPI, getTeacherAPI } from '@/api/study'
 import { useRoute, useRouter } from 'vue-router'
 import { formatTimeTable, reduceTypeOfPair } from '@/services/study_services'
 import { reductionFIO } from '@/services/user_services'
-import { getCurrentWeek, getCurrentYear, getCountOfWeeksInYear } from '@/services/datetime_services'
+import { getCurrentWeek, getCurrentYear, getCountOfWeeksInYear, compareWithNowTimeTable, dateFormatTimeTable } from '@/services/datetime_services'
 import { START_PAIRS } from '@/constants'
 import { ref, inject, onMounted } from 'vue';
 import Pagination from '@/components/Pagination.vue';
@@ -78,11 +80,13 @@ const error_message_teacher = 'Не удалось загрузить препо
 let year;
 let count_of_weeks;
 let week;
-let by_teacher = ref(null);
+let teacher_id = null;
 
+let by_teacher = ref(null);
 let timetable = ref([])
 
 onMounted(() => {
+    teacher_id = route.params.teacher_id;
     week = !isNaN(route.query.week) ? route.query.week : getCurrentWeek()
     year = !isNaN(route.query.year) ? route.query.year : getCurrentYear()
     route.name === 'teacher_timetable_info' ? getTeacher() : null
@@ -95,8 +99,8 @@ onMounted(() => {
 
 const getTimeTable = async () => {
     try {
-        const response = await getTimeTableAPI(week, year, route.params.teacher_id)
-        timetable.value = formatTimeTable(response.data, week, year)
+        const response = await getTimeTableAPI(getTimeTableParams())
+        timetable.value = formatTimeTable(response.data.results, week, year)
     }
     catch {
         $notificationStore.addError(error_message_timetable)
@@ -105,7 +109,8 @@ const getTimeTable = async () => {
 
 const getTeacher = async () => {
     try {
-        const response = await getTeacherAPI(null, null, route.params.teacher_id)
+        const params = {}
+        const response = await getTeacherAPI(params, teacher_id)
         by_teacher.value = response.data
     }
     catch {
@@ -117,6 +122,14 @@ const changeWeek = (value) => {
     week = value
     router.replace({ name: route.name, query: { ...route.query, year: year, week: week } })
     getTimeTable()
+}
+
+const getTimeTableParams = () => {
+    let params = { week: week, year: year }
+    if (teacher_id) {
+        params.teacher_id = teacher_id
+    }
+    return params
 }
 </script>
 

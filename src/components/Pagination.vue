@@ -80,7 +80,12 @@ const getPaginationList = () => {
     color: black;
 
     & i {
+        color: black !important;
         -webkit-text-stroke: 2px;
+
+        &:hover {
+            color: white !important;
+        }
     }
 
     &:not(.disabled-pagination):not(.active-pagination):hover {

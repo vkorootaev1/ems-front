@@ -1,15 +1,10 @@
 import { axios } from "@/api/interceptors";
 
-export const getTimeTableAPI = (week, year, teacher_id) => {
-  let params = {};
-  params.week = week;
-  params.year = year;
-  if (teacher_id) {
-    params.teacher_id = teacher_id;
-  }
+export const getTimeTableAPI = (params, pair_id = null) => {
+  let url = !pair_id ? 'study/timetable/' : `study/timetable/${pair_id}`
   return axios({
     method: "GET",
-    url: "study/timetable/",
+    url: url,
     params: params,
   });
 };
@@ -21,21 +16,7 @@ export const getStudyPlanAPI = () => {
   });
 };
 
-export const getControlMeasureScoreAPI = (
-  trimester,
-  study_group_id,
-  studyplan_course_id
-) => {
-  let params = {};
-  if (trimester) {
-    params.trimester = trimester;
-  }
-  if (study_group_id) {
-    params.study_group_id = study_group_id;
-  }
-  if (studyplan_course_id) {
-    params.studyplan_course_id = studyplan_course_id;
-  }
+export const getControlMeasureScoreAPI = (params) => {
   return axios({
     method: "GET",
     url: "study/score/trim/",
@@ -43,14 +24,7 @@ export const getControlMeasureScoreAPI = (
   });
 };
 
-export const getResultScoreAPI = (study_group_id, studyplan_course_id) => {
-  let params = {};
-  if (study_group_id) {
-    params.study_group_id = study_group_id;
-  }
-  if (studyplan_course_id) {
-    params.studyplan_course_id = studyplan_course_id;
-  }
+export const getResultScoreAPI = (params) => {
   return axios({
     method: "GET",
     url: "study/score/result/",
@@ -65,17 +39,7 @@ export const getStudentCurrentTrimesterAPI = () => {
   });
 };
 
-export const getStudyGroupsCoursesAPI = (
-  trimester,
-  course_or_and_group_name
-) => {
-  let params = {};
-  if (trimester !== null) {
-    params.trimester = trimester;
-  }
-  if (course_or_and_group_name) {
-    params.name = course_or_and_group_name;
-  }
+export const getStudyGroupsCoursesAPI = (params) => {
   return axios({
     method: "GET",
     url: "study/teacher/groups/",
@@ -83,33 +47,20 @@ export const getStudyGroupsCoursesAPI = (
   });
 };
 
-export const multipleUpdateControlMeasureScoreAPI = (
-  scores,
-  study_group_id,
-  studyplan_course_id
-) => {
+export const multipleUpdateControlMeasureScoreAPI = (data, params) => {
   return axios({
     method: "PUT",
     url: "study/score/trim/multiple_update/",
-    data: scores,
-    params: {
-      study_group_id: study_group_id,
-      studyplan_course_id: studyplan_course_id,
-    },
+    data: data,
+    params: params
   });
 };
 
-export const multipleUpdateResultScoreAPI = (
-  study_group_id,
-  studyplan_course_id
-) => {
+export const multipleUpdateResultScoreAPI = (params) => {
   return axios({
     method: "PUT",
     url: "study/score/result/set_scores/",
-    params: {
-      study_group_id: study_group_id,
-      studyplan_course_id: studyplan_course_id,
-    },
+    params: params
   });
 };
 
@@ -120,30 +71,16 @@ export const getTrimesterAPI = () => {
   });
 };
 
-export const getTeacherAPI = (page = null, name = null, id = null) => {
-  let params = {};
-  let teacher_id = "";
-  if (page) {
-    params.page = page;
-  }
-  if (name) {
-    params.name = name;
-  }
-  if (id) {
-    teacher_id = id;
-  }
+export const getTeacherAPI = (params, teacher_id = null) => {
+  let url = !teacher_id ? 'user/teacher/' : `user/teacher/${teacher_id}`
   return axios({
     method: "GET",
-    url: `user/teacher/${teacher_id}`,
+    url: url,
     params: params,
   });
 };
 
-export const getCertificatesAPI = (page) => {
-  let params = {};
-  if (page) {
-    params.page = page;
-  }
+export const getCertificatesAPI = (params) => {
   return axios({
     method: "GET",
     url: `certificate/`,
@@ -158,33 +95,25 @@ export const getCertificatesTypeAPI = () => {
   });
 };
 
-export const createCertificateAPI = (type_id, count) => {
+export const createCertificateAPI = (data) => {
   return axios({
     method: "POST",
     url: `certificate/`,
-    data: {
-      type_id: type_id,
-      count: count,
-      status_write: "cr",
-    },
+    data: data
   });
 };
 
-export const updateCertificateAPI = (id) => {
+export const updateCertificateAPI = (certificate_id) => {
   return axios({
     method: "PATCH",
-    url: `certificate/${id}/`,
+    url: `certificate/${certificate_id}/`,
     data: {
       status_write: "ca",
     },
   });
 };
 
-export const getStudyGroupAPI = (name) => {
-  let params = {};
-  if (name) {
-    params.name = name;
-  }
+export const getStudyGroupAPI = (params) => {
   return axios({
     method: "GET",
     url: `study/studygroup/`,
@@ -192,18 +121,11 @@ export const getStudyGroupAPI = (name) => {
   });
 };
 
-export const getAdvertisementAPI = (id = null, page = null) => {
-  let adv_id = "";
-  let params = {};
-  if (page) {
-    params.page = page;
-  }
-  if (id) {
-    adv_id = id;
-  }
+export const getAdvertisementAPI = (params, advertisement_id = null) => {
+  let url = !advertisement_id ? 'advertisement/' : `advertisement/${advertisement_id}`
   return axios({
     method: "GET",
-    url: `advertisement/${adv_id}`,
+    url: url,
     params: params,
   });
 };
@@ -216,25 +138,25 @@ export const createAdvertisementAPI = (data) => {
   });
 };
 
-export const deleteAdvertisementFileAPI = (id) => {
+export const deleteAdvertisementFileAPI = (file_id) => {
   return axios({
     method: "DELETE",
-    url: `advertisement/files/${id}`,
+    url: `advertisement/files/${file_id}`,
   });
 };
 
-export const updateAdvertisementAPI = (id, data) => {
+export const updateAdvertisementAPI = (data, advertisement_id) => {
   return axios({
     method: "PUT",
-    url: `advertisement/${id}/`,
+    url: `advertisement/${advertisement_id}/`,
     data: data,
   });
 };
 
-export const deleteAdvertisementAPI = (id) => {
+export const deleteAdvertisementAPI = (advertisement_id) => {
   return axios({
     method: "DELETE",
-    url: `advertisement/${id}/`,
+    url: `advertisement/${advertisement_id}/`,
   });
 };
 
@@ -247,24 +169,56 @@ export const getContactAPI = () => {
   });
 };
 
-export const getContactTypeAPI = (id = null, page = null) => {
+export const getContactTypeAPI = () => {
   return axios({
     method: "GET",
     url: `user/contacts/type/`,
   });
 };
 
-export const updateContactAPI = (id, data) => {
+export const updateContactAPI = (data, contact_id) => {
   return axios({
     method: "PATCH",
-    url: `user/contacts/${id}/`,
+    url: `user/contacts/${contact_id}/`,
     data: data,
   });
 };
 
-export const deleteContactAPI = (id) => {
+export const deleteContactAPI = (contact_id) => {
   return axios({
     method: "DELETE",
-    url: `user/contacts/${id}/`,
+    url: `user/contacts/${contact_id}/`,
+  });
+};
+
+export const createContactAPI = (data) => {
+  return axios({
+    method: "POST",
+    url: `user/contacts/`,
+    data: data
+  })
+}
+
+export const getAttendanceAPI = (params) => {
+  return axios({
+    method: "GET",
+    url: `study/attendance/`,
+    params: params
+  })
+}
+
+export const getPassedStudentTrimesterAPI = () => {
+  return axios({
+    method: "GET",
+    url: `study/trimester/student/passed/`,
+  })
+}
+
+export const multipleUpdateAttendanceAPI = (params, data) => {
+  return axios({
+    method: "PUT",
+    url: "study/attendance/multiple_update/",
+    params: params,
+    data: data
   });
 };
