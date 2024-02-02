@@ -121,6 +121,7 @@
 </template>
 
 <script setup>
+import { diffArrayOfObjects, deepClone } from '@/services/other_services'
 import { getStudyGroupsCoursesAPI, getTrimesterAPI, getControlMeasureScoreAPI, multipleUpdateControlMeasureScoreAPI, getResultScoreAPI, multipleUpdateResultScoreAPI } from '@/api/study'
 import { ref, onMounted, inject } from 'vue';
 import { formatScoreTeacher, formatTrimester } from '@/services/study_services'
@@ -134,6 +135,8 @@ const error_message_result_scores = 'Не удалось загрузить ит
 const error_message_update_scores = 'Не удалось сохранить оценки'
 const error_message_trimesters = 'Не удалось загрузить триместры'
 const success_message_update_scores = 'Оценки успешно обновлены'
+
+let multiple_update_control_measure_score = []
 
 let search_field_groups_courses = ref('')
 let selected_trimester = ref({ id: 0, trimester: null, date_start: null, date_end: null })
@@ -201,6 +204,7 @@ const getControlMeasureScore = async () => {
         const params = getScoreParams()
         const response = await getControlMeasureScoreAPI(params)
         control_measure_scores.value = formatScoreTeacher(response.data)
+        multiple_update_control_measure_score = deepClone(control_measure_scores.value)
         getControlMeasureList(control_measure_scores.value)
     }
     catch {
@@ -224,6 +228,7 @@ const multipleUpdateControlMeasureScores = async () => {
         const data = createListControlMeasureScoresUpdated()
         const params = multipleUpdateControlMeasureScoresParams()
         await multipleUpdateControlMeasureScoreAPI(data, params)
+        multiple_update_control_measure_score = deepClone(control_measure_scores.value)
         $notificationStore.addSuccess(success_message_update_scores)
     }
     catch {
@@ -253,9 +258,11 @@ const updateScore = () => {
 }
 
 const createListControlMeasureScoresUpdated = () => {
+    const diff = diffArrayOfObjects(control_measure_scores.value, multiple_update_control_measure_score)
+    console.log(diff)
     let list_scores_updated = []
-    if (control_measure_scores.value.length) {
-        control_measure_scores.value.forEach((item1) => {
+    if (diff.length) {
+        diff.forEach((item1) => {
             item1.scores.forEach((item2) => {
                 if (item2.score && item2.id) {
                     list_scores_updated.push({
@@ -265,8 +272,8 @@ const createListControlMeasureScoresUpdated = () => {
                 }
             })
         })
-        return list_scores_updated
     }
+    return list_scores_updated
 }
 
 const clearScores = () => {
@@ -330,7 +337,6 @@ const multipleUpdateResultScoresParams = () => {
 </script>
 
 <style lang="scss" scoped>
-
 .control-measure-info {
 
     & span {

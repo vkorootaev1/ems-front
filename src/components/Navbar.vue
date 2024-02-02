@@ -93,7 +93,6 @@ const IsParrentRoute = (parent_route_names) => {
         });
     });
     if (is_found) {
-        console.log(is_found)
         return parent_route_names.includes(is_found.name) ? true : false
     }
 }
