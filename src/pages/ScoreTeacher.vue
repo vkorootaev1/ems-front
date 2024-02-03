@@ -101,11 +101,17 @@
                                                 </div>
                                             </div>
                                             <div class="col-5">
-                                                <div class="student-score-fio">
+                                                <div class="student-score-fio" v-if="is_discipline">
                                                     <span v-if="item.score !== 'Не выставлено'"
                                                         :class="['Зачет', '5', '4', '3'].includes(item.score) ? 'student-score' : 'score-false'">{{
                                                             item.score
                                                         }}</span>
+                                                </div>
+                                                <div v-else class="teacher-score">
+                                                    <v-select label="Триместр" v-model="item.score"
+                                                        :items="is_exam ? choices_exam_result_scores : choices_zachet_result_scores"
+                                                        variant="outlined" rounded="lg" hide-details="true">
+                                                    </v-select>
                                                 </div>
                                             </div>
                                         </div>
@@ -122,7 +128,7 @@
 
 <script setup>
 import { diffArrayOfObjects, deepClone } from '@/services/other_services'
-import { getStudyGroupsCoursesAPI, getTrimesterAPI, getControlMeasureScoreAPI, multipleUpdateControlMeasureScoreAPI, getResultScoreAPI, multipleUpdateResultScoreAPI } from '@/api/study'
+import { getStudyGroupsCoursesAPI, getTrimesterAPI, getControlMeasureScoreAPI, multipleUpdateControlMeasureScoreAPI, getResultScoreAPI, setResultScoreDisciplineAPI, setResultScoreOtherAPI } from '@/api/study'
 import { ref, onMounted, inject } from 'vue';
 import { formatScoreTeacher, formatTrimester } from '@/services/study_services'
 import { reductionFIO } from '@/services/user_services';
@@ -136,7 +142,12 @@ const error_message_update_scores = 'Не удалось сохранить оц
 const error_message_trimesters = 'Не удалось загрузить триместры'
 const success_message_update_scores = 'Оценки успешно обновлены'
 
+let multiple_update_result_score = []
 let multiple_update_control_measure_score = []
+let choices_exam_result_scores = [2, 3, 4, 5, 'Не выставлено']
+let choices_zachet_result_scores = ['Зачет', 'Незачет', 'Не выставлено']
+let is_exam = true
+let is_discipline = true
 
 let search_field_groups_courses = ref('')
 let selected_trimester = ref({ id: 0, trimester: null, date_start: null, date_end: null })
@@ -193,9 +204,14 @@ const getTrimesters = async () => {
 }
 
 const getScores = async (group_course) => {
+    clearScores()
     selected_studyplan_course.value = group_course.study_plan_course
     selected_study_group.value = group_course.study_group
-    await getControlMeasureScore()
+    is_discipline = selected_studyplan_course.value.course.type_of_course === 'Дисциплина' ? true : false
+    is_exam = selected_studyplan_course.value.course.type_of_mark === 'Экзамен' ? true : false
+    if (is_discipline) {
+        await getControlMeasureScore()
+    }
     await getResultScore()
 }
 
@@ -205,7 +221,7 @@ const getControlMeasureScore = async () => {
         const response = await getControlMeasureScoreAPI(params)
         control_measure_scores.value = formatScoreTeacher(response.data)
         multiple_update_control_measure_score = deepClone(control_measure_scores.value)
-        getControlMeasureList(control_measure_scores.value)
+        getControlMeasureList()
     }
     catch {
         $notificationStore.addError(error_message_control_measure_scores)
@@ -217,6 +233,10 @@ const getResultScore = async () => {
         const params = getScoreParams()
         const response = await getResultScoreAPI(params)
         result_scores.value = response.data
+        multiple_update_result_score = deepClone(result_scores.value)
+        if (!is_discipline) {
+            getControlMeasureList()
+        }
     }
     catch {
         $notificationStore.addError(error_message_result_scores)
@@ -236,11 +256,24 @@ const multipleUpdateControlMeasureScores = async () => {
     }
 }
 
-const multipleUpdateResultScores = async () => {
+const setResultScoreDiscipline = async () => {
     try {
-        const params = multipleUpdateResultScoresParams()
-        const response = await multipleUpdateResultScoreAPI(params)
+        const params = setResultScoreParams()
+        const response = await setResultScoreDisciplineAPI(params)
         result_scores.value = response.data
+        $notificationStore.addSuccess(success_message_update_scores)
+    }
+    catch {
+        $notificationStore.addError(error_message_update_scores)
+    }
+}
+
+const setResultScoreOther = async () => {
+    try {
+        const params = setResultScoreParams()
+        const data = createListResultScoresUpdated()
+        await setResultScoreOtherAPI(data, params)
+        multiple_update_result_score = deepClone(result_scores.value)
         $notificationStore.addSuccess(success_message_update_scores)
     }
     catch {
@@ -250,7 +283,12 @@ const multipleUpdateResultScores = async () => {
 
 const updateScore = () => {
     if (selected_control_measure.value.id === 0) {
-        multipleUpdateResultScores()
+        if (is_discipline) {
+            setResultScoreDiscipline()
+        }
+        else {
+            setResultScoreOther()
+        }
     }
     else {
         multipleUpdateControlMeasureScores()
@@ -276,6 +314,28 @@ const createListControlMeasureScoresUpdated = () => {
     return list_scores_updated
 }
 
+const createListResultScoresUpdated = () => {
+    const diff = diffArrayOfObjects(result_scores.value, multiple_update_result_score)
+    let list_scores_updated = []
+    diff.forEach((item) => {
+        let score = item.score;
+        if (score === 'Зачет') {
+            score = 'OK'
+        }
+        else if (score === 'Незачет') {
+            score = 'FA'
+        }
+        else if (score === 'Не выставлено') {
+            score = 'NO'
+        }
+        list_scores_updated.push({
+            id: item.id,
+            score: score
+        })
+    })
+    return list_scores_updated
+}
+
 const clearScores = () => {
     selected_study_group.value = null
     selected_study_group.value = null
@@ -284,26 +344,24 @@ const clearScores = () => {
     control_measures.value = []
 }
 
-const getControlMeasureList = (data) => {
-    control_measures.value = []
-    selected_control_measure.value = null
-    if (data.length) {
-        data[0].scores.forEach((item) => {
+const getControlMeasureList = () => {
+    if (is_discipline) {
+        control_measure_scores.value[0].scores.forEach((item) => {
             control_measures.value.push(
                 item.control_measure
             )
         })
-        control_measures.value.push({ id: 0, name: 'ИТОГОВЫЕ ОЦЕНКИ' })
-        selected_control_measure.value = control_measures.value[0]
     }
+    control_measures.value.push({ id: 0, name: 'ИТОГОВЫЕ ОЦЕНКИ' })
+    selected_control_measure.value = control_measures.value[0]
 }
 
-const scoreHandler = (score) => {
-    if (score.score > selected_control_measure.value.max_score) {
-        score.score = selected_control_measure.value.max_score
+const scoreHandler = (score, min_score = 0, max_score = selected_control_measure.value.max_score) => {
+    if (score.score > max_score) {
+        score.score = max_score
     }
-    if (score.score < 0) {
-        score.score = 0
+    if (score.score < min_score) {
+        score.score = min_score
     }
 }
 
@@ -330,7 +388,7 @@ const multipleUpdateControlMeasureScoresParams = () => {
     return params
 }
 
-const multipleUpdateResultScoresParams = () => {
+const setResultScoreParams = () => {
     let params = { study_group_id: selected_study_group.value.id, studyplan_course_id: selected_studyplan_course.value.id }
     return params
 }

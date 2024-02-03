@@ -6,6 +6,9 @@
                     <input type="submit" @click="router.push({ name: 'advertisement_create' })" value="Создать объявление"
                         class="form__btn w-100">
                 </div>
+                <div v-if="!advertisements.length" class="my-2 huge-card" style="text-align: center;">
+                    <h5>Объявлений не найдено</h5>
+                </div>
                 <div class="advertisement huge-card" v-for="advertisement in advertisements" :key="advertisement">
                     <i class="bi bi-pencil-square" v-if="$userStore.isTeacher()"
                         @click="router.push({ name: 'advertisement_update', params: { 'adv_id': advertisement.id } })"></i>

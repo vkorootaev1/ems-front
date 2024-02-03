@@ -3,6 +3,9 @@
         <div class="row justify-content-center pt-4">
             <div class="col-xl-10 col-12">
                 <switcher-score></switcher-score>
+                <div v-if="!scores.length" class="my-2 huge-card" style="text-align: center;">
+                    <h5>Итоговых оценок не найдено</h5>
+                </div>
                 <div class="row mb-4 mx-0" v-for="item in scores" :key="item">
                     <h4>{{ item.trimester }} триместр</h4>
                     <div class="result-scores huge-card mb-2" v-for="item in item.scores" :key="item">

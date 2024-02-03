@@ -9,6 +9,9 @@
                             @changeItem="changeTrimester"></pagination>
                     </div>
                 </div>
+                <div v-if="!scores.length" class="my-2 huge-card" style="text-align: center;">
+                    <h5>Промежуточных оценок не найдено</h5>
+                </div>
                 <div class="row mb-4" v-for="item in scores" :key="item">
                     <h4>{{ item.course.name }}</h4>
                     <div class="col-12 col-md-10">

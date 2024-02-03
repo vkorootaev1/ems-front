@@ -10,6 +10,9 @@
                     <input type="submit" @click="is_create_certificate_modal = true" value="Заказать справку"
                         class="form__btn w-100">
                 </div>
+                <div v-if="!certificates.length" class="my-2 base-card" style="text-align: center;">
+                    <h5>Контактов не найдено</h5>
+                </div>
                 <div class="certificate base-card" v-for="certificate in certificates" :key="certificate">
                     <i class="bi bi-x-lg" v-if="!['Отменена', 'Готова к выдаче', 'Выдана'].includes(certificate.status)"
                         @click="updateCertificate(certificate.id)"></i>

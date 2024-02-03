@@ -1,7 +1,10 @@
 <template>
     <div class="container">
         <div class="row justify-content-center pt-4">
-            <div class="col-lg-6 col-md-8 col-12" style="max-width: 600px;">
+            <div class="col-lg-6 col-md-8 col-12">
+                <div v-if="!studyplan.length" class="my-2 huge-card" style="text-align: center;">
+                    <h5>Учебного плана не найдено</h5>
+                </div>
                 <div class="studyplan-trimester-courses mb-4" v-for="item in studyplan" :key="item">
                     <h4>{{ item.trimester }} триместр</h4>
                     <div class="course base-card my-2" v-for="item in item.courses" :key="item">

@@ -1,7 +1,7 @@
 import { axios } from "@/api/interceptors";
 
 export const getTimeTableAPI = (params, pair_id = null) => {
-  let url = !pair_id ? 'study/timetable/' : `study/timetable/${pair_id}`
+  let url = !pair_id ? "study/timetable/" : `study/timetable/${pair_id}`;
   return axios({
     method: "GET",
     url: url,
@@ -52,15 +52,24 @@ export const multipleUpdateControlMeasureScoreAPI = (data, params) => {
     method: "PUT",
     url: "study/score/trim/multiple_update/",
     data: data,
-    params: params
+    params: params,
   });
 };
 
-export const multipleUpdateResultScoreAPI = (params) => {
+export const setResultScoreDisciplineAPI = (params) => {
   return axios({
     method: "PUT",
-    url: "study/score/result/set_scores/",
-    params: params
+    url: "study/score/result/set_scores_discipline/",
+    params: params,
+  });
+};
+
+export const setResultScoreOtherAPI = (data, params) => {
+  return axios({
+    method: "PUT",
+    url: "study/score/result/set_scores_other/",
+    params: params,
+    data: data,
   });
 };
 
@@ -72,7 +81,7 @@ export const getTrimesterAPI = () => {
 };
 
 export const getTeacherAPI = (params, teacher_id = null) => {
-  let url = !teacher_id ? 'user/teacher/' : `user/teacher/${teacher_id}`
+  let url = !teacher_id ? "user/teacher/" : `user/teacher/${teacher_id}`;
   return axios({
     method: "GET",
     url: url,
@@ -99,7 +108,7 @@ export const createCertificateAPI = (data) => {
   return axios({
     method: "POST",
     url: `certificate/`,
-    data: data
+    data: data,
   });
 };
 
@@ -122,7 +131,9 @@ export const getStudyGroupAPI = (params) => {
 };
 
 export const getAdvertisementAPI = (params, advertisement_id = null) => {
-  let url = !advertisement_id ? 'advertisement/' : `advertisement/${advertisement_id}`
+  let url = !advertisement_id
+    ? "advertisement/"
+    : `advertisement/${advertisement_id}`;
   return axios({
     method: "GET",
     url: url,
@@ -195,30 +206,30 @@ export const createContactAPI = (data) => {
   return axios({
     method: "POST",
     url: `user/contacts/`,
-    data: data
-  })
-}
+    data: data,
+  });
+};
 
 export const getAttendanceAPI = (params) => {
   return axios({
     method: "GET",
     url: `study/attendance/`,
-    params: params
-  })
-}
+    params: params,
+  });
+};
 
 export const getPassedStudentTrimesterAPI = () => {
   return axios({
     method: "GET",
     url: `study/trimester/student/passed/`,
-  })
-}
+  });
+};
 
 export const multipleUpdateAttendanceAPI = (params, data) => {
   return axios({
     method: "PUT",
     url: "study/attendance/multiple_update/",
     params: params,
-    data: data
+    data: data,
   });
 };

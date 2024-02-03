@@ -10,6 +10,9 @@
                     <input type="submit" @click="is_create_contact_modal = true" value="Создать контакт"
                         class="form__btn w-100">
                 </div>
+                <div v-if="!contacts.length" class="my-2 huge-card" style="text-align: center;">
+                    <h5>Контактов не найдено</h5>
+                </div>
                 <div class="contact huge-card" v-for="contact in contacts" :key="contact">
                     <div class="row">
                         <div class="col-lg-4 col-12 contact-type">
