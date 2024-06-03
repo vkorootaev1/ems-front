@@ -1,5 +1,8 @@
 const _ = require("lodash");
 
+// Функции, связанные с пагинацией
+
+// Функция для подсчета вывода пагинации
 export const getPaginationList = (current, last, range) => {
   current = Number(current);
   last = Number(last);

@@ -1,5 +1,9 @@
 import { axios } from "@/api/interceptors";
 
+// Запросы к API, связанные с аутентификацией
+
+ 
+// Отправка запроса к конечной точке API для идентификации и аутентификации в системе (вход) 
 export const loginAPI = (username, password) => {
   return axios({
     method: "POST",
@@ -11,6 +15,8 @@ export const loginAPI = (username, password) => {
   });
 };
 
+
+// Отправка запроса к конечной точке API для получения текущего пользователя
 export const currentUserAPI = () => {
   return axios({
     method: "GET",
@@ -18,6 +24,7 @@ export const currentUserAPI = () => {
   });
 };
 
+// Отправка запроса к конечной точке API для получения профилей пользователей
 export const userProfilesAPI = () => {
   return axios({
     method: "GET",
@@ -25,6 +32,7 @@ export const userProfilesAPI = () => {
   });
 };
 
+// Отправка запроса к конечной точке API для выхода из системы
 export const logoutAPI = () => {
   return axios({
     method: "POST",
@@ -32,6 +40,7 @@ export const logoutAPI = () => {
   });
 };
 
+// Отправка запроса к конечной точке API для выхода из всех устройств пользователя
 export const logoutAllAPI = () => {
   return axios({
     method: "POST",
@@ -39,6 +48,7 @@ export const logoutAllAPI = () => {
   });
 };
 
+// Отправка запроса к конечной точке API для сброса имени пользователя
 export const resetUsernameAPI = (email) => {
   return axios({
     method: "POST",
@@ -49,6 +59,7 @@ export const resetUsernameAPI = (email) => {
   });
 };
 
+// Отправка запроса к конечной точке API для сброса пароля
 export const resetPasswordAPI = (email) => {
   return axios({
     method: "POST",
@@ -59,6 +70,7 @@ export const resetPasswordAPI = (email) => {
   });
 };
 
+// Отправка запроса к конечной точке API для изменения пароля
 export const changePasswordAPI = (
   new_password,
   re_new_password,
@@ -75,6 +87,7 @@ export const changePasswordAPI = (
   });
 };
 
+// Отправка запроса к конечной точке API для изменения имени пользователя
 export const changeUsernameAPI = (new_username, current_password) => {
   return axios({
     method: "POST",
@@ -86,6 +99,7 @@ export const changeUsernameAPI = (new_username, current_password) => {
   });
 };
 
+// Отправка запроса к конечной точке API для изменения электронной почты
 export const changeEmailAPI = (email) => {
   return axios({
     method: "PATCH",
@@ -96,6 +110,7 @@ export const changeEmailAPI = (email) => {
   });
 };
 
+// Отправка запроса к конечной точке API для подтверждения сброса пароля
 export const resetPasswordConfirmAPI = (
   uid,
   token,
@@ -114,6 +129,7 @@ export const resetPasswordConfirmAPI = (
   });
 };
 
+// Отправка запроса к конечной точке API для подтверждения сброса имени пользователя
 export const resetUsernameConfirmAPI = (uid, token, new_username) => {
   return axios({
     method: "POST",

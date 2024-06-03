@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { generateUID } from "@/services/other_services";
 
+// Глобальное хранилище уведомлений
+
 export const useNotificationStore = defineStore("notification", () => {
   const notifications = ref([]);
 

@@ -12,7 +12,7 @@
                         <div class="course-info">Вид оценки: <span>{{ item.course.type_of_mark }}</span></div>
                         <div class="course-info">Кол-во аудиторных часов: <span>{{ item.course.classroom_worktime }}</span>
                         </div>
-                        <div class="course-info">Кол-во аудиторных часов: <span>{{ item.course.independent_worktime
+                        <div class="course-info">Кол-во самостоятельных часов: <span>{{ item.course.independent_worktime
                         }}</span></div>
                         <div class="course-info">Общее кол-во часов: <span>{{ item.course.classroom_worktime +
                             item.course.independent_worktime }}</span></div>
@@ -38,15 +38,17 @@ onMounted(() => {
     getStudyPlan()
 })
 
-const getStudyPlan = async () => {
-    try {
-        const response = await getStudyPlanAPI()
-        studyplan.value = formatStudyPlan(response.data)
+    // Функция обработки полученной информации об учебном плане студента
+    const getStudyPlan = async () => {
+        try {
+            // Ответ сервера
+            const response = await getStudyPlanAPI()
+            studyplan.value = formatStudyPlan(response.data)
+        }
+        catch {
+            $notificationStore.addError(error_message_studyplan)
+        }
     }
-    catch {
-        $notificationStore.addError(error_message_studyplan)
-    }
-}
 
 </script>
 

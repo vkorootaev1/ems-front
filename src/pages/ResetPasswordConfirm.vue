@@ -3,7 +3,7 @@
         <reset-password v-if="is_reset_password_modal" @close="is_reset_password_modal = false"></reset-password>
     </Transition>
     <div class="container h-100">
-        <div class="row justify-content-center align-items-center h-100 mx-1">
+        <div class="row justify-content-center align-items-center h-100 my-5 mx-1">
             <div class="col-lg-6 col-md-8 col-12 base-card login">
                 <h4 class="reset-password-header">Восстановление пароля</h4>
                 <input type="password" v-model="new_password" @keyup.enter="resetPasswordConfirm" placeholder="Новый пароль"

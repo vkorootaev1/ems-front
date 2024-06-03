@@ -16,7 +16,7 @@
         <router-link :to="{ name: 'studyplan' }" active-class="link-active" v-if="$userStore.isStudent()">Учебный
             план</router-link>
         <div class="custom-dropdown" v-if="$userStore.isStudent()">
-            <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute('student_score') }">Оценки
+            <button class="custom-dropbtn" :class="{ 'link-active-dropdown': IsParrentRoute(['student_score']) }">Оценки
                 <font-awesome-icon icon="caret-down" />
             </button>
             <div class="custom-dropdown-content">

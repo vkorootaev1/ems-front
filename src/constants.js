@@ -1,3 +1,6 @@
+
+// Константы
+
 export const START_PAIRS = {
   1: "8:00",
   2: "9:45",

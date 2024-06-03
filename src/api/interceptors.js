@@ -3,6 +3,8 @@ import { router } from "@/router";
 import { useLoadingStore } from "@/stores/LoadingStore";
 import { clearAuth } from "@/services/auth_services";
 
+// Интерцепторы Axios
+
 const API_URL = process.env.VUE_APP_API_BASE_URL;
 export const axios = _axios.create({
   baseURL: API_URL,

@@ -6,6 +6,8 @@ import { router } from "@/router";
 import { useNotificationStore } from "./NotificationsStore";
 import { reductionFIO } from "@/services/user_services";
 
+// Глобальное хранилище информации пользователя
+
 export const useUserStore = defineStore("user", () => {
   const notificationStore = useNotificationStore();
 

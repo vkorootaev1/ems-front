@@ -7,6 +7,9 @@ import { TRIMESTER } from '@/constants'
 
 const _ = require("lodash");
 
+// Функция, связанные с форматированием массивов
+
+// Функция формата расписания
 export const formatTimeTable = (timetable, week, year) => {
   const days_of_week = getDaysByWeekYear(week, year);
 
@@ -51,6 +54,7 @@ export const formatTimeTable = (timetable, week, year) => {
   return formated_timetable;
 };
 
+// Функция формата учебного плана
 export const formatStudyPlan = (studyplan) => {
   let group_studyplan = Object.groupBy(studyplan, ({ trimester }) => trimester);
   let formated_studyplan = [];
@@ -60,6 +64,7 @@ export const formatStudyPlan = (studyplan) => {
   return formated_studyplan;
 };
 
+// Функция формата промежуточных оценок студента
 export const formatControlMeasureScore = (scores) => {
   let group_scores = Object.groupBy(
     scores,
@@ -75,6 +80,7 @@ export const formatControlMeasureScore = (scores) => {
   return formated_scores;
 };
 
+// Функция формата итоговых оценок студента
 export const formatResultScore = (scores) => {
   let group_scores = Object.groupBy(scores, ({ course }) => course.trimester);
   let formated_scores = [];
@@ -87,6 +93,7 @@ export const formatResultScore = (scores) => {
   return formated_scores;
 };
 
+// Функция формата оценок студента (у преподавателя)
 export const formatScoreTeacher = (scores) => {
   let group_scores = Object.groupBy(scores, ({ student }) => student.id);
   let formated_scores = [];
@@ -99,6 +106,7 @@ export const formatScoreTeacher = (scores) => {
   return _.orderBy(formated_scores, "user.last_name");
 };
 
+// Функция формата пары
 export const reduceTypeOfPair = (type) => {
   const reduce = {
     "Лабораторная работа": "лаб",
@@ -108,10 +116,12 @@ export const reduceTypeOfPair = (type) => {
   return reduce[type];
 };
 
+// Функция формата триместра
 export const formatTrimester = (trimester) => {
   return `${TRIMESTER[trimester.trimester]} (${getYear(trimester.date_start)})`
 }
 
+// Функция формата посещаемости студентов (у преподавателя)
 export const formatAttendanceTeacher = (attendance) => {
   attendance.forEach(item => { item.status = item.status === null ? item.status = false : item.status })
   let group_attendance = Object.groupBy(attendance, ({ student }) => student.study_group.id);

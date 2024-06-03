@@ -1,3 +1,7 @@
+
+// Функции, связанные с файлами
+
+// Функция обрезки имени файла
 export const truncateFilename = (filename, truncate_number = 10) => {
   if (filename.length < truncate_number + 3) {
     return filename;
@@ -10,6 +14,7 @@ export const truncateFilename = (filename, truncate_number = 10) => {
   );
 };
 
+// Функция отображения размера файла
 export const formatBytes = (bytes, decimals = 2) => {
   if (!+bytes) return "0Б";
 

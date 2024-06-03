@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
+// Глобальное хранилище индикации загрузки
+
 export const useLoadingStore = defineStore("loading", () => {
   const is_loading = ref(false);
   const start_requests = ref(0);
